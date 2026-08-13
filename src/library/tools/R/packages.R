@@ -142,7 +142,7 @@ function(desc, path, addFiles, addPaths, latestOnly)
 
 ## factored out so it can be used in multiple
 ## places without threat of divergence
-.get_pkg_file_pattern = function(type = c("source", "mac.binary", "win.binary", "other.binary"),
+.get_pkg_file_pattern <- function(type = c("source", "mac.binary", "win.binary", "other.binary"),
                                  ext.only = FALSE)
 {
 
@@ -150,14 +150,14 @@ function(desc, path, addFiles, addPaths, latestOnly)
     ## FIXME: might the source pattern be more general?
     ## was .tar.gz prior to 2.10.0
 
-    ret = switch(type,
+    ret <- switch(type,
                  "source" = "_.*\\.tar\\.[^_]*$",
                  "mac.binary" = "_.*\\.tgz$",
                  "win.binary" = "_.*\\.zip$",
                  "other.binary" = "_.*\\.tar\\.[^_]*$" ##  we assume any custom binaries are still tar balls
                  )
     if(ext.only)
-        ret = gsub("_.*", "", fixed = TRUE, ret)
+        ret <- gsub("_.*", "", fixed = TRUE, ret)
     ret
 }
 ## this is OK provided all the 'fields' are ASCII -- so be careful

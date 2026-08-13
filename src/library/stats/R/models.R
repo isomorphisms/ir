@@ -102,7 +102,9 @@ formula.character <- function(x, env = parent.frame(), ...)
 			"invalid formula %s: extraneous call to `%s` is deprecated",
 			deparse2(x), as.character(c.)))
                       eval(ff)
-                  }
+                  } else
+                      stop(gettextf("invalid formula %s", deparse2(x)),
+                           domain = NA)
         } else
             stop(gettextf("invalid formula %s", deparse2(x)), domain=NA)
     }

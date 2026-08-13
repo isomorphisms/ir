@@ -29,7 +29,7 @@
 
 ## canonical field order, from calling available.packages
 ## on CRAN repository (same result for Bioconductor)
-fieldorder = c("Package", "Version", "Priority", "Depends",
+fieldorder <- c("Package", "Version", "Priority", "Depends",
                "Imports", "LinkingTo", "Suggests", "Enhances",
                "License", "License_is_FOSS", "License_restricts_use",
                "OS_type", "Archs", "MD5sum", "NeedsCompilation",     
@@ -46,7 +46,7 @@ update_PACKAGES <- function(dir = ".", fields = NULL,
                             dryrun = FALSE)
 {
     if(!is.integer(verbose.level))
-        verbose.level = as.integer(verbose.level)
+        verbose.level <- as.integer(verbose.level)
     type <- match.arg(type)
     stopifnot(verbose.level >= 0L && verbose.level <= 2L)
     PKGSfile <- file.path(dir, "PACKAGES")
@@ -127,7 +127,7 @@ update_PACKAGES <- function(dir = ".", fields = NULL,
         retdat$tarball <- retdat$File
 
     ## for accounting purposes, removed before final write
-    retdat$IsNew = FALSE
+    retdat$IsNew <- FALSE
 
     ## detect and remove entries whose files have been deleted
     ## file.exists(NA_character_) returns FALSE, so this
@@ -349,4 +349,3 @@ update_PACKAGES <- function(dir = ".", fields = NULL,
     df <- df[,unique(c(srcnames, dfnames))]
     df
 }
-

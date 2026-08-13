@@ -831,7 +831,7 @@ names(.indirectAbnormalClasses) <- .AbnormalTypes
 
 .addAbnormalDataType <- function(classes) {
   types <- match(classes, .AbnormalTypes, 0) > 0
-  type = classes[types]
+  type <- classes[types]
   if(length(type) == 0)
     return(classes)
   if(length(type) > 1)

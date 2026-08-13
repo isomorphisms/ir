@@ -1277,7 +1277,7 @@ model.matrix.free1way <- function (object, ...)
         if (length(cf) == 1L)
             sc <- sc / sqrt(c(ret$hessian))
         if (!is.null(x$exact)) {
-            STATISTIC = c("W" = sc)
+            STATISTIC <- c("W" = sc)
         } else {
             Esc <- sc - x$perm$Expectation
 
@@ -1473,7 +1473,7 @@ confint.free1way <- function(object, parm,
                 if (length(cf) == 1L)
                     sc <- sc / sqrt(c(ret$hessian))
                 if (!is.null(x$exact)) {
-                    STATISTIC = c("W" = sc)
+                    STATISTIC <- c("W" = sc)
                 } else {
                     Esc <- sc - x$perm$Expectation
 
@@ -2326,4 +2326,3 @@ power.free1way.test <- function(n = NULL,
 
     ret
 }
-

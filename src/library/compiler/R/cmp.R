@@ -485,7 +485,7 @@ constantFoldCall <- function(e, cntxt) {
 
 ## **** rewrite using switch??
 constantFold <- function(e, cntxt, loc = NULL) {
-    type = typeof(e)
+    type <- typeof(e)
     if (type == "language")
         constantFoldCall(e, cntxt)
     else if (type == "symbol")
@@ -1691,7 +1691,7 @@ checkAssign <- function(e, cntxt, loc = NULL) {
                     notifyBadAssignFun(fun, cntxt, loc)
                     return(FALSE)
                 }
-                place = place[[2]]
+                place <- place[[2]]
             }
             if (typeof(place) == "symbol")
                 TRUE
@@ -3173,7 +3173,7 @@ setCompilerOptions <- function(...) {
 
 .onLoad <- function(libname, pkgname) {
     envAsLogical <- function(varName) {
-        value = Sys.getenv(varName)
+        value <- Sys.getenv(varName)
         if (value == "")
             NA
         else

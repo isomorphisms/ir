@@ -1847,9 +1847,9 @@ stopifnot(as.numeric("infinity") == Inf)
 b <- data.frame(ppg.id=1, predvol=2)
 a <- b[b$ppg.id == 2, ]
 by(a, a["ppg.id"], function(x){
-    vol.sum = numeric()
-    id = integer();
-    if(dim(x)[1] > 0) {id = x$ppg.id[1]; vol.sum = sum(x$predvol)}
+    vol.sum <- numeric()
+    id <- integer();
+    if(dim(x)[1] > 0) {id <- x$ppg.id[1]; vol.sum <- sum(x$predvol)}
     data.frame(ppg.id=id, predVolSum=vol.sum)
 })
 ## failed in 2.15.0

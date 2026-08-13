@@ -178,7 +178,7 @@ if(FALSE) {
         rarch <- paste0("/", .Platform$r_arch)
     test_archs <- rarch
     if (have_cross) {
-        rarch = if (cross == "singlearch") "" else paste0("/", cross)
+        rarch <- if (cross == "singlearch") "" else paste0("/", cross)
         test_archs <- c()
     }
 

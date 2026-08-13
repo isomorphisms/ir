@@ -1450,7 +1450,7 @@ matchDefaults <- function(method, generic)
 getGroupMembers <- function(group, recursive = FALSE, character = TRUE)
 {
     .recMembers <- function(members, where) {
-        all = vector("list", length(members))
+        all <- vector("list", length(members))
         for(i in seq_along(members)) {
             what <- members[[i]]
             f <- getGeneric(what, FALSE, where)

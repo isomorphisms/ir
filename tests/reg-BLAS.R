@@ -126,8 +126,8 @@ for(mopt in c("default","internal","default.simd")) {
   for(ai in vals)
   for(br in vals)
   for(bi in vals) {
-    a = ar + 1i * ai
-    b = br + 1i * bi
+    a <- ar + 1i * ai
+    b <- br + 1i * bi
     stopifnot(identical(a * b, as.complex(a %*% b)))
     stopifnot(identical(a * b, as.complex(crossprod(a,b))))
     stopifnot(identical(a * b, as.complex(tcrossprod(a,b))))

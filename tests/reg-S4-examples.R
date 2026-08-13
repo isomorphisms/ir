@@ -170,8 +170,8 @@ removeMethods("length")
 
 setClass("foo", slots = c(m="matrix"))
 m1 <- matrix(1:12,3,4)
-f1 = new("foo", m=m1)
-f2 = new("foo", m=t(m1))
+f1 <- new("foo", m=m1)
+f2 <- new("foo", m=t(m1))
 
 setMethod("%*%", c("foo", "foo"),
           function(x,y) callGeneric(x@m, y@m))

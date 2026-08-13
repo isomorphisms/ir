@@ -74,7 +74,7 @@ unclass(z)
 years <- c(-1e6, -1e5, -1e4, seq(-1000, 4000, by = 100), 1e4, 1e5, 1e6)
 y <- character(length(years))
 for(i in seq_along(years)) {
-    zz$year = years[i] - 1900
+    zz$year <- years[i] - 1900
     y[i] <- strftime(zz)
 }
 ## IGNORE_RDIFF_BEGIN
@@ -83,7 +83,7 @@ y
 
 y <- double(length(years))
 for(i in seq_along(years)) {
-    zz$year = years[i] - 1900
+    zz$year <- years[i] - 1900
     zz$isdst <- -1 # some are DST, some not so let the code decide
     y[i] <- as.POSIXct(zz)
 }
@@ -97,7 +97,7 @@ if(y2[1] != "4Y-07-01") print(y2) else message('format "%_4Y" unsupported')
 
 y <- double(length(years))
 for(i in seq_along(years)) {
-    zz$year = years[i] - 1900
+    zz$year <- years[i] - 1900
     zz$isdst <- -1
     y[i] <- as.Date(zz)
 }
@@ -113,7 +113,7 @@ zz <- as.POSIXlt("1900-07-01")
 years <- c(1800, 1847:1848, 1899:1902)
 y <- double(length(years))
 for(i in seq_along(years)) {
-    zz$year = years[i] - 1900
+    zz$year <- years[i] - 1900
     zz$isdst <- -1 # some are DST, some not so let the code decide
     y[i] <- as.POSIXct(zz)
 }
