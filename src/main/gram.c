@@ -4491,6 +4491,8 @@ static keywords[] = {
     { "NA_character_", NUM_CONST  },
     { "NA_complex_", NUM_CONST  },
     { "function",   FUNCTION   },
+    { "λ",          FUNCTION   },
+    { "ƒ",          FUNCTION   },
     { "while",	    WHILE      },
     { "repeat",	    REPEAT     },
     { "for",	    FOR	       },
@@ -4555,6 +4557,8 @@ static int KeywordLookup(const char *s)
 		    PRESERVE_SV(yylval = R_NilValue);
 		break;
 	    case FUNCTION:
+		yylval = R_FunctionSymbol;
+		break;
 	    case WHILE:
 	    case REPEAT:
 	    case FOR:
