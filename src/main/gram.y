@@ -423,13 +423,12 @@ static int	xxvalue(SEXP, int, YYLTYPE *);
 %right		IF
 %left		ELSE
 %right		LEFT_ASSIGN
-%right		EQ_ASSIGN
 %left		RIGHT_ASSIGN
 %left		'~' TILDE
 %left		OR OR2
 %left		AND AND2
 %left		UNOT NOT
-%nonassoc   	GT GE LT LE EQ NE
+%nonassoc   	GT GE LT LE EQ EQ_ASSIGN NE
 %left		'+' '-'
 %left		'*' '/'
 %left		SPECIAL PIPE
@@ -451,7 +450,6 @@ prog	:	END_OF_INPUT			{ Status = 0; YYACCEPT; }
 	;
 
 expr_or_assign_or_help  :    expr               { $$ = $1; }
-                |    expr_or_assign_or_help EQ_ASSIGN expr_or_assign_or_help    { $$ = xxbinary($2,$1,$3); setId(@$); }
                 |    expr_or_assign_or_help '?'  expr_or_assign_or_help		{ $$ = xxbinary($2,$1,$3); setId(@$); }
                 ;
 
@@ -485,6 +483,7 @@ expr	: 	NUM_CONST			{ $$ = $1;	setId(@$); }
 	|	expr LT expr			{ $$ = xxbinary($2,$1,$3);	setId(@$); }
 	|	expr LE expr			{ $$ = xxbinary($2,$1,$3);	setId(@$); }
 	|	expr EQ expr			{ $$ = xxbinary($2,$1,$3);	setId(@$); }
+	|	expr EQ_ASSIGN expr		{ $$ = xxbinary($2,$1,$3);	setId(@$); modif_token(&@2, EQ); }
 	|	expr NE expr			{ $$ = xxbinary($2,$1,$3);	setId(@$); }
 	|	expr GE expr			{ $$ = xxbinary($2,$1,$3);	setId(@$); }
 	|	expr GT expr			{ $$ = xxbinary($2,$1,$3);	setId(@$); }
@@ -3506,6 +3505,21 @@ static SEXP install_and_save2(char * text, char * savetext)
     return install(text);
 }
 
+/* Consume and save a multibyte character previously inspected by
+   mbcs_get_next().  The parser can retain the source spelling while using
+   the existing internal symbol for the operation. */
+static SEXP install_and_save_mbcs(const char *text, int c, int clen)
+{
+    char *p = yytext;
+    int i;
+
+    YYTEXT_PUSH(c, p);
+    for (i = 1; i < clen; i++)
+	YYTEXT_PUSH(xxgetc(), p);
+    YYTEXT_PUSH('\0', p);
+    return install(text ? text : yytext);
+}
+
 
 /* Split the input stream into tokens. */
 /* This is the lowest of the parsing levels. */
@@ -3579,9 +3593,27 @@ static int token(void)
     if (c == '_') return Placeholder(c);
     if(mbcslocale) {
 	// FIXME potentially need R_wchar_t with UTF-8 Windows.
-	if (mbcs_get_next(c, &wc) == -1)
+	clen = mbcs_get_next(c, &wc);
+	if (clen == -1)
 	    return END_OF_INPUT; /* EOF whilst reading MBCS char */
 	if (iswalpha(wc)) return SymbolValue(c);
+
+	if (wc == 0x2190) { /* ← is <- */
+	    yylval = install_and_save_mbcs("<-", c, clen);
+	    return LEFT_ASSIGN;
+	}
+	if (wc == 0x219e) { /* ↞ is <<- */
+	    yylval = install_and_save_mbcs("<<-", c, clen);
+	    return LEFT_ASSIGN;
+	}
+	if (wc == 0x2192) { /* → is -> */
+	    yylval = install_and_save_mbcs("<-", c, clen);
+	    return RIGHT_ASSIGN;
+	}
+	if (wc == 0x21a0) { /* ↠ is ->> */
+	    yylval = install_and_save_mbcs("<<-", c, clen);
+	    return RIGHT_ASSIGN;
+	}
     } else
 	if (isalpha(c)) return SymbolValue(c);
 
@@ -3644,7 +3676,9 @@ static int token(void)
 	    HavePipeBind = true;
 	    return PIPEBIND;
 	}		 
-	yylval = install_and_save("=");
+	/* In expressions, a single equality sign is equality.  The grammar
+	   still recognizes its contextual use in named and default arguments. */
+	yylval = install_and_save2("==", "=");
 	return EQ_ASSIGN;
     case ':':
 	if (nextchar(':')) {
