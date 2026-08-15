@@ -67,14 +67,14 @@ getSrcLocation(x, which = c("line", "column", "byte", "parse"),
 \code{\link{srcref}}, \code{\link{getParseData}}
 }
 \examples{
-fn <- function(x) {
+fun <- function(x) {
   x + 1 # A comment, kept as part of the source
 }			
 
 # Show the temporary file directory
 # where the example was saved
 
-getSrcDirectory(fn)
-getSrcLocation(fn, "line")
+getSrcDirectory(fun)
+getSrcLocation(fun, "line")
 }
 \keyword{ utilities }

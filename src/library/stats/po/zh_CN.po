@@ -620,8 +620,8 @@ msgid "non-finite finite-difference value [%d]"
 msgstr ""
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
-msgstr "'fn'不是函数"
+msgid "'fun' is not a function"
+msgstr "'fun'不是函数"
 
 #: optim.c:235 optim.c:429
 msgid "'parscale' is of the wrong length"
@@ -980,7 +980,7 @@ msgstr "最后%d个观测值里出现了缺省值"
 
 #, fuzzy
 #~ msgid "'y' is a factor"
-#~ msgstr "'fn'不是函数"
+#~ msgstr "'fun'不是函数"
 
 #~ msgid "allocation error in smooth(*, '3RSR')."
 #~ msgstr "smooth(*, '3RSR')分配出错。"

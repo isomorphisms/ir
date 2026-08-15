@@ -22,8 +22,8 @@ askYesNo <- function(msg, default = TRUE,
     if (is.character(prompts) && length(prompts) == 1)
 	prompts <- strsplit(prompts, "/")[[1]]
     if (!is.character(prompts) || length(prompts) != 3) {
-    	fn <- match.fun(prompts)
-    	return(fn(msg = msg, default = default, prompts = prompts, ...))
+    	fun <- match.fun(prompts)
+    	return(fun(msg = msg, default = default, prompts = prompts, ...))
     }
     choices <- tolower(prompts)
     if (is.na(default)) choices[3L] <- prompts[3L]

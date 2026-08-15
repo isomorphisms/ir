@@ -21,6 +21,9 @@ if(!(UTF8 || LATIN1OR9) ||
 options(warn = 1)
 assertErrV  <- function(...) tools::assertError  (..., verbose=TRUE)
 assertWarnV <- function(...) tools::assertWarning(..., verbose=TRUE)
+
+shortFunction <- parse(text = "fn(x) x", keep.source = FALSE)[[1L]]
+stopifnot(identical(shortFunction, quote(function(x) x)))
 #
 ##' Get value of `expr` and keep warning as attribute (if there is one)
 getVaW <- function(expr, obj=FALSE) {
@@ -471,4 +474,3 @@ stopifnot(exprs = {
     is.character(sr <- readChar(f, nchars = nchar(su)))
     identical(sr, strrep("😀", nchar(su)))
 })
-

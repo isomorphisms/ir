@@ -11,7 +11,8 @@
   The reserved words in \R's parser are
 
   \code{\link{if}} \code{\link{else}} \code{\link{repeat}} \code{\link{while}}
-  \code{\link{function}} \code{\link{for}} \code{in}
+  \code{\link{function}} \code{fn} \code{λ} \code{ƒ}
+  \code{\link{for}} \code{in}
   \code{\link{next}} \code{\link{break}}
 
   \code{\link{TRUE}} \code{\link{FALSE}} \code{\link{NULL}}

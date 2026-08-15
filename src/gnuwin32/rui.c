@@ -221,7 +221,7 @@ static void menusource(control m)
 static void menudisplay(control m)
 {
     if (!ConsoleAcceptCmd) return;
-    consolecmd(RConsole,"local({fn<-choose.files(filters=Filters[c('R','txt','All'),],index=4)\nfile.show(fn,header=fn,title='')})");
+    consolecmd(RConsole,"local({fun<-choose.files(filters=Filters[c('R','txt','All'),],index=4)\nfile.show(fun,header=fun,title='')})");
 }
 
 static void menuloadimage(control m)

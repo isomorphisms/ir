@@ -175,7 +175,7 @@ enT <- "empty model supplied"
 Sys.setenv(LANGUAGE = "de") # may not always 'work'
 gettext(enT, domain="R-stats")# "leeres Modell angegeben" (if translation works)
 tget <- function() gettext(enT)
-tget() # not translated as fn tget() is not from "stats" pkg/namespace
+tget() # not translated as fun tget() is not from "stats" pkg/namespace
 evalq(function() gettext(enT), asNamespace("stats"))() # *is* translated
 
 ## Sys.setLanguage()  -- typical usage --

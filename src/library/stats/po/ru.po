@@ -637,8 +637,8 @@ msgid "non-finite finite-difference value [%d]"
 msgstr "не-конечное конечно-разностное значение [%d]"
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
-msgstr "'fn' не является функцией"
+msgid "'fun' is not a function"
+msgstr "'fun' не является функцией"
 
 #: optim.c:235 optim.c:429
 msgid "'parscale' is of the wrong length"

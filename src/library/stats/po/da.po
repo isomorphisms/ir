@@ -628,7 +628,7 @@ msgid "non-finite finite-difference value [%d]"
 msgstr ""
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
+msgid "'fun' is not a function"
 msgstr ""
 
 #: optim.c:235 optim.c:429

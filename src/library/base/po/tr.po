@@ -52,8 +52,8 @@ msgid "REPORT must be > 0 (method = \"L-BFGS-B\")"
 msgstr "REPORT > 0 olmalı (metod = \"L-BFGS-B\")"
 
 #: src/appl/optim.c:685
-msgid "L-BFGS-B needs finite values of 'fn'"
-msgstr "L-BFGS-B 'fn'nin sonlu değerlerine ihtiyaç duyar"
+msgid "L-BFGS-B needs finite values of 'fun'"
+msgstr "L-BFGS-B 'fun'nin sonlu değerlerine ihtiyaç duyar"
 
 #: src/appl/optim.c:741
 msgid "trace, REPORT must be >= 0 (method = \"SANN\")"
@@ -4069,7 +4069,7 @@ msgstr "grup dağıtımında dağıtım hatası"
 #: src/main/eval.c:5014
 #, fuzzy, c-format
 msgid "\"%s\" is not a %s function"
-msgstr "'fn' bir fonksiyon değil"
+msgstr "'fun' bir fonksiyon değil"
 
 #: src/main/eval.c:5658
 #, fuzzy

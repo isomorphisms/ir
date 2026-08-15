@@ -478,17 +478,17 @@ build_exclude <- function(allfiles, pkgdir, pkgname) {
             messageLog(Log, "cleaning src")
             if (WINDOWS) {
                 have_make <- nzchar(Sys.which(Sys.getenv("MAKE", "make")))
-                if (file.exists(fn <- "Makefile.ucrt") || file.exists(fn <- "Makefile.win")) {
+                if (file.exists(fun <- "Makefile.ucrt") || file.exists(fun <- "Makefile.win")) {
                     if (have_make)
-                        Ssystem(Sys.getenv("MAKE", "make"), paste0("-f ", fn, " clean"))
+                        Ssystem(Sys.getenv("MAKE", "make"), paste0("-f ", fun, " clean"))
                     else warning("unable to run 'make clean' in 'src'",
                                  domain = NA)
                 } else {
-                    if (file.exists(fn <- "Makevars.ucrt") || file.exists(fn <- "Makevars.win")) {
+                    if (file.exists(fun <- "Makevars.ucrt") || file.exists(fun <- "Makevars.win")) {
                         if (have_make) {
                             makefiles <- paste("-f",
                                                shQuote(file.path(R.home("share"), "make", "clean.mk")),
-                                           "-f", fn)
+                                           "-f", fun)
                             Ssystem(Sys.getenv("MAKE", "make"),
                                     c(makefiles, "clean"))
                         } else warning("unable to run 'make clean' in 'src'",

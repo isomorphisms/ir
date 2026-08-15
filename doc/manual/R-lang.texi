@@ -4244,7 +4244,7 @@ The following identifiers have a special meaning and cannot be used
 for object names
 
 @example
-if else repeat while function for in next break
+if else repeat while function fn λ ƒ for in next break
 TRUE FALSE NULL Inf NaN
 NA NA_integer_ NA_real_ NA_complex_ NA_character_
 ... ..1 ..2 @r{etc.}

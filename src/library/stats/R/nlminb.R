@@ -33,7 +33,7 @@ port_msg <- function(iv1) {
 	   "15" = "LIV too small (15)",
 	   "16" = "LV too small (16)",
 
-	   "63" = "fn cannot be computed at initial par (63)",
+	   "63" = "fun cannot be computed at initial par (63)",
 	   "65" = "gr cannot be computed at initial par (65)",
 
 	   "300" = "initial par violates constraints",

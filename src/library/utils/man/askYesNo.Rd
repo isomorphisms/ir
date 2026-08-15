@@ -43,7 +43,7 @@ raised.
 
 If a function or single character string naming a function
 is given for \code{prompts}, it will be called as
-\code{fn(msg = msg, default = default, prompts = prompts, ...)}.  On
+\code{fun(msg = msg, default = default, prompts = prompts, ...)}.  On
 Windows, the GUI uses the unexported \code{utils:::askYesNoWinDialog}
 function for this purpose.
 

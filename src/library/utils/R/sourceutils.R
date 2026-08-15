@@ -17,7 +17,7 @@
 #  https://www.R-project.org/Licenses/
 
 # move to base (!?)
-removeSource <- function(fn) {
+removeSource <- function(fun) {
 
     recurse <- function(part) {
         if (is.name(part)) return(part)  # handles missing arg, PR#15957
@@ -39,24 +39,24 @@ removeSource <- function(fn) {
         part
     }
 
-    if(is.function(fn)) {
-        if(!is.primitive(fn)) {
-            attr(fn, "srcref") <- NULL
+    if(is.function(fun)) {
+        if(!is.primitive(fun)) {
+            attr(fun, "srcref") <- NULL
             ## `body<-`(f, *) drops all attributes of f
-            at <- attributes(fn)
-            formals(fn) <- recurse(formals(fn))
-            attr(body(fn), "wholeSrcref") <- NULL
-            attr(body(fn), "srcfile") <- NULL
-            body(fn) <- recurse(body(fn))
-            if(!is.null(at)) attributes(fn) <- at
+            at <- attributes(fun)
+            formals(fun) <- recurse(formals(fun))
+            attr(body(fun), "wholeSrcref") <- NULL
+            attr(body(fun), "srcfile") <- NULL
+            body(fun) <- recurse(body(fun))
+            if(!is.null(at)) attributes(fun) <- at
         }
-        fn
+        fun
     }
-    else if(is.language(fn)) { # expression, call, or symbol=name
-	recurse(fn)
+    else if(is.language(fun)) { # expression, call, or symbol=name
+	recurse(fun)
     }
     else
-	stop("argument is not a function or language object:", typeof(fn))
+	stop("argument is not a function or language object:", typeof(fun))
 }
 
 

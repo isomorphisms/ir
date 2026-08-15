@@ -1964,10 +1964,10 @@ function(a, m)
 cite <-
 function(keys, bib, ...)
 {
-    fn <- tools::bibstyle()$cite
-    if (is.null(fn))
-    	fn <- citeNatbib
-    fn(keys, bib, ...)
+    fun <- tools::bibstyle()$cite
+    if (is.null(fun))
+    	fun <- citeNatbib
+    fun(keys, bib, ...)
 }
 
 ## Cite using natbib-like options.  A bibstyle would normally

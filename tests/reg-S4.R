@@ -296,7 +296,7 @@ setClass("c1", "numeric")
 setClass("c2", "numeric")
 x_c1 <- new("c1")
 # the next failed < 2.5.0 as the signature in .BasicFunsList was wrong
-setMethod("as.character", "c1", function(x, ...) "fn test")
+setMethod("as.character", "c1", function(x, ...) "fun test")
 as.character(x_c1)
 
 setMethod("as.integer", "c1", function(x, ...) 42)

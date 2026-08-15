@@ -17,12 +17,12 @@
 #  https://www.R-project.org/Licenses/
 
 optim <-
-    function(par, fn, gr = NULL, ...,
+    function(par, fun, gr = NULL, ...,
              method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
              lower = -Inf, upper = Inf,
              control = list(), hessian = FALSE)
 {
-    fn1 <- function(par) fn(par,...)
+    fn1 <- function(par) fun(par,...)
     gr1 <- if (!is.null(gr)) function(par) gr(par,...)
     method <- match.arg(method)
     if((any(lower > -Inf) || any(upper < Inf))
@@ -65,7 +65,7 @@ optim <-
     res <- if(method == "Brent") { ## 1-D
         if(any(!is.finite(c(upper, lower))))
            stop("'lower' and 'upper' must be finite values")
-	res <- optimize(function(par) fn(par,...)/con$fnscale,
+	res <- optimize(function(par) fun(par,...)/con$fnscale,
                         lower = lower, upper = upper, tol = con$reltol)
 	names(res)[names(res) == c("minimum", "objective")] <- c("par", "value")
         res$value <- res$value * con$fnscale
@@ -77,9 +77,9 @@ optim <-
     res
 }
 
-optimHess <- function(par, fn, gr = NULL, ..., control = list())
+optimHess <- function(par, fun, gr = NULL, ..., control = list())
 {
-    fn1 <- function(par) fn(par,...)
+    fn1 <- function(par) fun(par,...)
     gr1 <- if (!is.null(gr)) function(par) gr(par,...)
     npar <- length(par)
     con <- list(fnscale = 1, parscale = rep.int(1, npar),

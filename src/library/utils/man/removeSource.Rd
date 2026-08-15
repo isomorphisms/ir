@@ -14,21 +14,21 @@
   \code{removeSource()}.
 }
 \usage{
-removeSource(fn)
+removeSource(fun)
 }
 \arguments{
-  \item{fn}{a \code{\link{function}} or another language object
+  \item{fun}{a \code{\link{function}} or another language object
     (fulfilling \code{\link{is.language}}) from which to remove the
     source.
   }
 }
 \details{
   This removes the \code{"srcref"} and related attributes, via
-  \emph{recursive} cleaning of \code{body(fn)} in the case of a function
+  \emph{recursive} cleaning of \code{body(fun)} in the case of a function
   or the recursive language parts, otherwise.
 }
 \value{
-  A copy of the \code{fn} object with the source removed.
+  A copy of the \code{fun} object with the source removed.
 }
 \seealso{
   \code{\link{is.language}} about language objects.
@@ -39,15 +39,15 @@ removeSource(fn)
 \examples{
 ## to make this act independently of the global 'options()' setting:
 op <- options(keep.source = TRUE)
-fn <- function(x) {
+fun <- function(x) {
   x + 1 # A comment, kept as part of the source
 }
-fn
-names(attributes(fn))       # "srcref" (only)
-names(attributes(body(fn))) # "srcref" "srcfile" "wholeSrcref"
-f2 <- removeSource(fn)
+fun
+names(attributes(fun))       # "srcref" (only)
+names(attributes(body(fun))) # "srcref" "srcfile" "wholeSrcref"
+f2 <- removeSource(fun)
 f2
-stopifnot(length(attributes(fn)) > 0,
+stopifnot(length(attributes(fun)) > 0,
           is.null(attributes(f2)),
           is.null(attributes(body(f2))))
 

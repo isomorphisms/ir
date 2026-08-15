@@ -177,12 +177,12 @@ file.link <- function(from, to) {
 
 file.info <- function(..., extra_cols = TRUE)
 {
-    res <- .Internal(file.info(fn <- c(...), extra_cols))
+    res <- .Internal(file.info(fun <- c(...), extra_cols))
     res$mtime <- .POSIXct(res$mtime)
     res$ctime <- .POSIXct(res$ctime)
     res$atime <- .POSIXct(res$atime)
     class(res) <- "data.frame"
-    attr(res, "row.names") <- fn # not row.names<- as that does a length check
+    attr(res, "row.names") <- fun # not row.names<- as that does a length check
     res
 }
 ## wrappers introduced in R 3.2.0

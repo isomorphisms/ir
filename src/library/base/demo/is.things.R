@@ -76,8 +76,8 @@ is.ALL <- function(obj, func.names = ls(pos=length(search())),
 	    }
 	}
 	if(debug) cat(f,"")
-	fn <- get(f)
-	rr <- if(is.primitive(fn) || length(formals(fn))>0)  fn(obj) else fn()
+	fun <- get(f)
+	rr <- if(is.primitive(fun) || length(formals(fun))>0)  fun(obj) else fun()
 	if(!is.logical(rr)) cat("f=",f," --- rr	 is NOT logical	 = ",rr,"\n")
 	##if(1!=length(rr))   cat("f=",f," --- rr NOT of length 1; = ",rr,"\n")
 	if(true.only && length(rr)==1 && !is.na(rr) && rr) r <- c(r, f)

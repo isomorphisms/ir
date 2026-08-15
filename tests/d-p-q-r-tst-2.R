@@ -708,9 +708,9 @@ tryCatch.W.E <- function(expr) {
 .stat.ns <- asNamespace("stats")
 Ns <- 4
 for(dist in PDQR) {
-    fn <- paste0("r",dist)
-    cat(sprintf("%-9s(%d, ..): ", fn, Ns))
-    F <- get(fn, envir = .stat.ns)
+    fun <- paste0("r",dist)
+    cat(sprintf("%-9s(%d, ..): ", fun, Ns))
+    F <- get(fun, envir = .stat.ns)
     nArg <- length(fms <- formals(F))
     if(dist %in% c("nbinom", "gamma")) ## cannot specify *both* 'prob' & 'mu' / 'rate' & 'scale'
         nArg <- nArg - 1

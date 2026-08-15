@@ -298,19 +298,19 @@ Rdiff <- function(from, to, useDiff = FALSE, forEx = FALSE,
 {
     # see packages2.R for comment on unreliability of file.access
     ok <- TRUE
-    fn <- file.path(dir, paste0("_test_dir_", Sys.getpid()))
-    res <- try(dir.create(fn, showWarnings = FALSE))
+    fun <- file.path(dir, paste0("_test_dir_", Sys.getpid()))
+    res <- try(dir.create(fun, showWarnings = FALSE))
     if(inherits(res, "try-error") || !res)
         ok <- FALSE
     else
-        unlink(fn, recursive = TRUE)
+        unlink(fun, recursive = TRUE)
     if (ok) {
-        fn <- file.path(dir, paste0("_test_file_", Sys.getpid()))
-        res <- try(file.create(fn, showWarnings = FALSE))
+        fun <- file.path(dir, paste0("_test_file_", Sys.getpid()))
+        res <- try(file.create(fun, showWarnings = FALSE))
         if(inherits(res, "try-error") || !res)
             ok <- FALSE
         else
-            unlink(fn)
+            unlink(fun)
     }
     ok
 }

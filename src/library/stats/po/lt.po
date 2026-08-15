@@ -627,8 +627,8 @@ msgid "non-finite finite-difference value [%d]"
 msgstr "nebaigtinė riboto skirtumo reikšmė [%d]"
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
-msgstr "'fn' nėra funkcija"
+msgid "'fun' is not a function"
+msgstr "'fun' nėra funkcija"
 
 #: optim.c:235 optim.c:429
 msgid "'parscale' is of the wrong length"

@@ -47,8 +47,8 @@ msgid "REPORT must be > 0 (method = \"L-BFGS-B\")"
 msgstr "REPORT muss > 0 sein (method = \"L-BFGS-B\")"
 
 #: src/appl/optim.c:685
-msgid "L-BFGS-B needs finite values of 'fn'"
-msgstr "L-BFGS-B benötigt endliche Werte von 'fn'"
+msgid "L-BFGS-B needs finite values of 'fun'"
+msgstr "L-BFGS-B benötigt endliche Werte von 'fun'"
 
 #: src/appl/optim.c:741
 msgid "trace, REPORT must be >= 0 (method = \"SANN\")"
@@ -9222,8 +9222,8 @@ msgstr "Warnung: editiere nur das erste in der Dateiliste"
 #~ msgid "gradient in optim evaluated to length %d not %d"
 #~ msgstr "Gradient in optim gibt Ergebnis der Länge %d zurück, nicht Länge %d"
 
-#~ msgid "'fn' is not a function"
-#~ msgstr "'fn' ist keine Funktion"
+#~ msgid "'fun' is not a function"
+#~ msgstr "'fun' ist keine Funktion"
 
 #~ msgid "'parscale' is of the wrong length"
 #~ msgstr "'parscale' hat falsche Länge"

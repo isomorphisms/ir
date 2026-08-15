@@ -631,8 +631,8 @@ msgid "non-finite finite-difference value [%d]"
 msgstr "différences finies ayant des valeurs infinies [%d]"
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
-msgstr "'fn' n'est pas une fonction"
+msgid "'fun' is not a function"
+msgstr "'fun' n'est pas une fonction"
 
 #: optim.c:235 optim.c:429
 msgid "'parscale' is of the wrong length"
@@ -998,7 +998,7 @@ msgstr "valeur manquante dans les %d dernières observations"
 
 #, fuzzy
 #~ msgid "'y' is a factor"
-#~ msgstr "'fn' n'est pas une fonction"
+#~ msgstr "'fun' n'est pas une fonction"
 
 #~ msgid "stats"
 #~ msgstr "stats"

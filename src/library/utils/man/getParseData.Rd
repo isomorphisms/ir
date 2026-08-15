@@ -101,11 +101,11 @@ Duncan Murdoch
 \code{\link{parse}}, \code{\link{srcref}}
 }
 \examples{
-fn <- function(x) {
+fun <- function(x) {
   x + 1 # A comment, kept as part of the source
 }
 
-d <- getParseData(fn)
+d <- getParseData(fun)
 if (!is.null(d)) {
   plus <- which(d$token == "'+'")
   sum <- d$parent[plus]

@@ -505,7 +505,7 @@ function(x, n, alternative, conf.level, correct,
         ## wdiff(d, zq) returns the absolute difference between
         ## the asymptotic Wilcoxon statistic of x - mu - d and
         ## the quantile zq.
-        W <- function(d) { ## also fn(x, correct, alternative)
+        W <- function(d) { ## also fun(x, correct, alternative)
             xd <- x - d
             xd <- xd[xd != 0]
             nx <- length(xd)
@@ -873,7 +873,7 @@ function(x, y, n.x, n.y, alternative, conf.level, correct,
     alpha <- 1 - conf.level
     mumin <- min(x) - max(y)
     mumax <- max(x) - min(y)
-    W <- function(d) { ## also fn (x, y, n.x, n.y, correct, alternative)
+    W <- function(d) { ## also fun (x, y, n.x, n.y, correct, alternative)
         dr <- c(x - d, y)
         dr <- rank(if(is.finite(digits.rank)) signif(dr, digits.rank) else dr)
         NTIES.CI <- table(dr)

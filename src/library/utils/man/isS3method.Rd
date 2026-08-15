@@ -17,7 +17,7 @@ isS3method(method, f, class, envir = parent.frame())
 }
 \arguments{
   \item{method}{a character string, typically of the form
-    \code{"\var{fn}.\var{class}"}.  If omitted, \code{f} and \code{class} have
+    \code{"\var{fun}.\var{class}"}.  If omitted, \code{f} and \code{class} have
     to be specified instead.}
   \item{f}{optional character string, typically specifying an S3 generic
     function.  Used, when \code{method} is not specified.}

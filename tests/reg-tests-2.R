@@ -488,10 +488,10 @@ rowsum(matrix(1:12, 3,4), c("Y","X","Y"))
 ## PR#1115 (saving strings with ascii=TRUE)
 x <- y <- unlist(as.list(
     parse(text=paste("\"\\", as.character(as.octmode(1:255)), "\"",sep=""))))
-save(x, ascii=TRUE, file=(fn <- tempfile(tmpdir = getwd())))
-load(fn)
+save(x, ascii=TRUE, file=(fun <- tempfile(tmpdir = getwd())))
+load(fun)
 all(x==y)
-unlink(fn)
+unlink(fun)
 ## 1.3.1 had trouble with \
 
 

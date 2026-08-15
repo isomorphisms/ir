@@ -112,24 +112,24 @@ findLineNum <- function(srcfile, line, nameonly=TRUE, envir=parent.frame(), last
 
     for (i in seq_along(fns)) {
 	functionName <- fns[i]
-	fn <- get(functionName, envir=envirs[[i]])
-	loc <- fnLineNum(fn, srcfile=srcfile, line=line, nameonly=nameonly)
+	fun <- get(functionName, envir=envirs[[i]])
+	loc <- fnLineNum(fun, srcfile=srcfile, line=line, nameonly=nameonly)
     	if (!is.null(loc)) {
     	    count <- count + 1L
     	    result[[count]] <- c(list(name=functionName, env=envirs[[i]]), loc)
     	}
-    	gen <- tryCatch(methods::isGeneric(functionName, envirs[[i]], fdef=fn),
+    	gen <- tryCatch(methods::isGeneric(functionName, envirs[[i]], fdef=fun),
                         error = identity)
     	if (isTRUE(gen)) {
-    	    e1 <- environment(fn)$.AllMTable
+    	    e1 <- environment(fun)$.AllMTable
             for (sig in names(e1)) {
-                fn <- e1[[sig]]
-                if (typeof(fn) != "closure")
+                fun <- e1[[sig]]
+                if (typeof(fun) != "closure")
                     next
-                loc <- fnLineNum(fn, srcfile=srcfile, line=line,
+                loc <- fnLineNum(fun, srcfile=srcfile, line=line,
                                  nameonly=nameonly)
                 if (is.null(loc)
-                    && length(bf <- body(fn)) >= 2L
+                    && length(bf <- body(fun)) >= 2L
                     && length(bf[[2L]]) > 2L
                     && typeof(bf.i <- bf[[iloc <- c(2L,3L)]]) == "closure") {
                     ## desperate try:  look for

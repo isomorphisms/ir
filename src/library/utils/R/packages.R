@@ -897,14 +897,14 @@ download.packages <- function(pkgs, destdir, available = NULL,
             type <- gsub("^([[:lower:]]+[.]binary)[.].*", "\\1", type)
             ## this is just a fall-back if there is no File: so hopefully
             ## no longer used
-            fn <- paste0(p, "_", available[ok, "Version"],
+            fun <- paste0(p, "_", available[ok, "Version"],
                          switch(type,
                                 "source" = ".tar.gz",
                                 "mac.binary" = ".tgz",
                                 "win.binary" = ".zip",
                                 ".tar.xz")) ## for any other binaries, but they should use File:
             have_fn <- !is.na(File)
-            fn[have_fn] <- File[have_fn]
+            fun[have_fn] <- File[have_fn]
             repos <- available[ok, "Repository"]
             if(startsWith(repos, "file:")) { # local repository
                 ## This could be file: + file path or a file:/// URL.
@@ -912,25 +912,25 @@ download.packages <- function(pkgs, destdir, available = NULL,
                     ## We need to derive the file name from the URL
                     ## This is tricky as so many forms have been allowed,
                     ## and indeed external methods may do even more.
-                    fn <- paste(substring(repos, 8L), fn, sep = "/")
+                    fun <- paste(substring(repos, 8L), fun, sep = "/")
                     ## This leaves a path beginning with /
                     if(.Platform$OS.type == "windows") {
-                        if(length(grep("^/[A-Za-z]:", fn)))
-                            fn <- substring(fn, 2L)
+                        if(length(grep("^/[A-Za-z]:", fun)))
+                            fun <- substring(fun, 2L)
                     }
                 } else {
-                    fn <- paste(substring(repos, 6L), fn, sep = "/")
+                    fun <- paste(substring(repos, 6L), fun, sep = "/")
                 }
-                if(file.exists(fn)) {
-                    if(local) file.copy(fn, destdir)
-                    retval <- rbind(retval, c(p, fn))
+                if(file.exists(fun)) {
+                    if(local) file.copy(fun, destdir)
+                    retval <- rbind(retval, c(p, fun))
                 }
                 else
                     warning(gettextf("package %s does not exist on the local repository", sQuote(p)),
                             domain = NA, immediate. = TRUE)
             } else {
-                url <- paste(repos, fn, sep = "/")
-                destfile <- file.path(destdir, fn)
+                url <- paste(repos, fun, sep = "/")
+                destfile <- file.path(destdir, fun)
 
                 if (is.null(bulkdown)) {
                     # serial download

@@ -634,8 +634,8 @@ msgid "non-finite finite-difference value [%d]"
 msgstr ""
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
-msgstr "'fn' 不是函式"
+msgid "'fun' is not a function"
+msgstr "'fun' 不是函式"
 
 #: optim.c:235 optim.c:429
 msgid "'parscale' is of the wrong length"

@@ -3636,9 +3636,9 @@ simpleInternals <- function(pos = "package:base") {
     if (length(names) == 0)
         character(0)
     else {
-        fn <-  function(n)
+        fun <-  function(n)
             is.simpleInternal(get(n, pos = pos))
-        names[sapply(names, fn)]
+        names[sapply(names, fun)]
     }
 }
 @ %def simpleInternals

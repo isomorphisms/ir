@@ -651,7 +651,7 @@ msgid "'vec' must be sorted non-decreasingly and not contain NAs"
 msgstr "“vec”必须以非递减方式排序，并且不包含 NA"
 
 msgid "'fun' is not a function"
-msgstr "'fn'不是函数"
+msgstr "'fun'不是函数"
 
 msgid "using the first element of 'value' of type \"expression\""
 msgstr "用类型为\"expression\"的'value'的第一个元素"

@@ -50,8 +50,8 @@ msgid "REPORT must be > 0 (method = \"L-BFGS-B\")"
 msgstr "REPORT må vera positiv (method = \"L-BFGS-B\")"
 
 #: src/appl/optim.c:685
-msgid "L-BFGS-B needs finite values of 'fn'"
-msgstr "L-BFGS-B krev endelege verdiar av «fn»"
+msgid "L-BFGS-B needs finite values of 'fun'"
+msgstr "L-BFGS-B krev endelege verdiar av «fun»"
 
 #: src/appl/optim.c:741
 msgid "trace, REPORT must be >= 0 (method = \"SANN\")"
@@ -4070,7 +4070,7 @@ msgstr "avsendingsfeil i gruppeavsending"
 #: src/main/eval.c:5014
 #, fuzzy, c-format
 msgid "\"%s\" is not a %s function"
-msgstr "«fn» er ikkje ein funksjon"
+msgstr "«fun» er ikkje ein funksjon"
 
 #: src/main/eval.c:5658
 #, fuzzy

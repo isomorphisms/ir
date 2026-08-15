@@ -135,12 +135,12 @@
         f <- ff[i]
         if(grepl(rx1, f)) id <- sub(rx1, "\\1", f)
         if(grepl(rx2, f)) {
-            fn <- sub(rx2, "\\1", f)
+            fun <- sub(rx2, "\\1", f)
             src <- sub(rx3, "", sub(rx2, "\\3", f), fixed = TRUE)
             src <- gsub("\\", "/", src, fixed = TRUE)
-            if(havex64 && grepl("bin/x64/Rgui.exe$", src)) rgui <- fn
-            if(!havex64 && grepl("bin/Rgui.exe$", src)) rgui <- fn
-            if(grepl("doc/html/index.html$", src)) rhelp <- fn
+            if(havex64 && grepl("bin/x64/Rgui.exe$", src)) rgui <- fun
+            if(!havex64 && grepl("bin/Rgui.exe$", src)) rgui <- fun
+            if(grepl("doc/html/index.html$", src)) rhelp <- fun
             ids <- c(ids, id)
             nm <- c(nm, src)
             g <- sub(rx3, "", src)

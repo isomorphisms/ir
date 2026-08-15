@@ -49,8 +49,8 @@ msgid "REPORT must be > 0 (method = \"L-BFGS-B\")"
 msgstr "method에 \"L-BFGS-B\"가 사용될 때, REPORT는 반드시 0보다 커야 합니다"
 
 #: src/appl/optim.c:685
-msgid "L-BFGS-B needs finite values of 'fn'"
-msgstr "L-BFGS-B는 유한한 'fn'의 값들을 필요로 합니다"
+msgid "L-BFGS-B needs finite values of 'fun'"
+msgstr "L-BFGS-B는 유한한 'fun'의 값들을 필요로 합니다"
 
 #: src/appl/optim.c:741
 msgid "trace, REPORT must be >= 0 (method = \"SANN\")"

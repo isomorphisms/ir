@@ -110,11 +110,11 @@ tkProgressBar <- function(title = "R progress bar", label = "",
 
     tkwm.geometry(.win, sprintf("%dx80", width+40))
     tkwm.title(.win, title)
-    fn <- tkfont.create(family="helvetica", size=12)
+    fun <- tkfont.create(family="helvetica", size=12)
 
     if(useText) {
         ## currently unused
-        .lab <- tklabel(.win, text=label, font=fn, padx=20)
+        .lab <- tklabel(.win, text=label, font=fun, padx=20)
         tkpack(.lab, side = "left")
         fn2 <- tkfont.create(family="helvetica", size=16)
        .vlab <- tklabel(.win, text="0%", font=fn2, padx=20)
@@ -127,10 +127,10 @@ tkProgressBar <- function(title = "R progress bar", label = "",
                          round(100*(value - min)/(max - min))))
         }
     } else {
-        .lab <- tklabel(.win, text=label, font=fn, pady=10)
+        .lab <- tklabel(.win, text=label, font=fun, pady=10)
        .tkval <- tclVar(0)
         tkpack(.lab, side="top")
-        tkpack(tklabel(.win, text="", font = fn), side="bottom")
+        tkpack(tklabel(.win, text="", font = fun), side="bottom")
 
         pBar <- if(have_ttk) ttkprogressbar(.win, length=width, variable=.tkval) else tkwidget(.win, "ProgressBar", width=width, variable=.tkval)
         tkpack(pBar, side="bottom")

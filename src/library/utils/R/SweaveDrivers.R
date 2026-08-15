@@ -747,8 +747,8 @@ RtangleSetup <-
         lno <- if (length(srclines))
                    paste(min(srclines), max(srclines), sep = "-")
                else srclines
-        fn <- sub('[^"]*"([^"]+).*', "\\1", lnos[1L])
-        paste(fn, lno, sep = ":")
+        fun <- sub('[^"]*"([^"]+).*', "\\1", lnos[1L])
+        paste(fun, lno, sep = ":")
     } else
         "(missing #line/file info)"
 }

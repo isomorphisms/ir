@@ -2422,11 +2422,11 @@ if(FALSE) {
         if (WINDOWS) {
             ## file.access is unreliable on Windows
             ## the only known reliable way is to try it
-            fn <- file.path(lib, paste0("_test_dir_", Sys.getpid()))
-            unlink(fn, recursive = TRUE) # precaution
-            res <- try(dir.create(fn, showWarnings = FALSE))
+            fun <- file.path(lib, paste0("_test_dir_", Sys.getpid()))
+            unlink(fun, recursive = TRUE) # precaution
+            res <- try(dir.create(fun, showWarnings = FALSE))
             if (inherits(res, "try-error") || !res) ok <- FALSE
-            else unlink(fn, recursive = TRUE)
+            else unlink(fun, recursive = TRUE)
         } else ok <- file.access(lib, 2L) == 0L
     }
     if (!ok)
@@ -2723,9 +2723,9 @@ if(FALSE) {
     makefiles <- c(makefiles, makevars_user())
 
     makeobjs <- paste0("OBJECTS=", shQuote(objs))
-    if (WINDOWS && (file.exists(fn <- "Makevars.ucrt") || file.exists(fn <- "Makevars.win"))) {
-        makefiles <- c(fn, makefiles)
-        lines <- readLines(fn, warn = FALSE)
+    if (WINDOWS && (file.exists(fun <- "Makevars.ucrt") || file.exists(fun <- "Makevars.win"))) {
+        makefiles <- c(fun, makefiles)
+        lines <- readLines(fun, warn = FALSE)
         if (length(grep("^OBJECTS *=", lines, perl=TRUE, useBytes = TRUE)))
             makeobjs <- ""
         if (length(ll <- grep("^CXX_STD *=", lines, perl = TRUE,
@@ -2740,7 +2740,7 @@ if(FALSE) {
                 val <- gsub("^CXX_STD *= *", "", ll)
                 val <- gsub("#.*$", "", val)
                 val <- gsub(" +$", "", val)
-                msg <- sprintf("src/%s: Unknown C++ standard %s was ignored", fn,  sQuote(val))
+                msg <- sprintf("src/%s: Unknown C++ standard %s was ignored", fun,  sQuote(val))
                 warning(msg, domain = NA, call. = FALSE)
             }
         }

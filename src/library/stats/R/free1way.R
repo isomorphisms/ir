@@ -603,7 +603,7 @@
     
     # logLik, gradient, Hessian
 
-    fn <- function(par) 
+    fun <- function(par) 
     {
         ret <- .snll(par, x = xlist, mu = mu)
         if (!is.null(xrc))
@@ -646,7 +646,7 @@
                              p <- numeric(length(par) + length(fix))
                              p[fix] <- delta
                              p[-fix] <- par
-                             fn(p)
+                             fun(p)
                          },
                          gradient = function(par) {
                              p <- numeric(length(par) + length(fix))
@@ -694,12 +694,12 @@
             }
             if (K == 2) {
                 MLcf <- ret$par[seq_len(K - 1)]
-                Fret <- optim(MLcf, fn = .pll_Jeffreys, start = ret$par,
+                Fret <- optim(MLcf, fun = .pll_Jeffreys, start = ret$par,
                               method = "Brent", lower = MLcf - 5, 
                               upper = MLcf + 5)
             } else {
                 ### Nelder-Mead
-                Fret <- optim(ret$par[seq_len(K - 1)], fn = .pll_Jeffreys, 
+                Fret <- optim(ret$par[seq_len(K - 1)], fun = .pll_Jeffreys, 
                               start = ret$par)
             }
             if (Fret$convergence == 0) {
@@ -731,12 +731,12 @@
                     }
                     if (K == 2) {
                         MLcf <- ret$par[seq_len(K - 1)]
-                        Fret <- optim(MLcf, fn = .pll_Jeffreys, start = ret$par,
+                        Fret <- optim(MLcf, fun = .pll_Jeffreys, start = ret$par,
                                       method = "Brent", lower = MLcf - 5, 
                                       upper = MLcf + 5)
                     } else {
                         ### Nelder-Mead
-                        Fret <- optim(ret$par[seq_len(K - 1)], fn = .pll_Jeffreys, 
+                        Fret <- optim(ret$par[seq_len(K - 1)], fun = .pll_Jeffreys, 
                                       start = ret$par)
                     }
                     if (Fret$convergence == 0) {
@@ -769,7 +769,7 @@
     
     if (!length(fix)) {
         opargs <- list(start = start, 
-                       objective = fn, 
+                       objective = fun, 
                        gradient = gr,
                        hessian = he)
         opargs$control <- control[[1L]]
@@ -804,12 +804,12 @@
             }
             if (K == 2) {
                 MLcf <- ret$par[seq_len(K - 1)]
-                Fret <- optim(MLcf, fn = .pll_Jeffreys, start = ret$par,
+                Fret <- optim(MLcf, fun = .pll_Jeffreys, start = ret$par,
                               method = "Brent", lower = MLcf - 5, 
                               upper = MLcf + 5)
             } else {
                 ### Nelder-Mead
-                Fret <- optim(ret$par[seq_len(K - 1)], fn = .pll_Jeffreys, 
+                Fret <- optim(ret$par[seq_len(K - 1)], fun = .pll_Jeffreys, 
                               start = ret$par)
             }
             if (Fret$convergence == 0) {
@@ -841,12 +841,12 @@
                     }
                     if (K == 2) {
                         MLcf <- ret$par[seq_len(K - 1)]
-                        Fret <- optim(MLcf, fn = .pll_Jeffreys, start = ret$par,
+                        Fret <- optim(MLcf, fun = .pll_Jeffreys, start = ret$par,
                                       method = "Brent", lower = MLcf - 5, 
                                       upper = MLcf + 5)
                     } else {
                         ### Nelder-Mead
-                        Fret <- optim(ret$par[seq_len(K - 1)], fn = .pll_Jeffreys, 
+                        Fret <- optim(ret$par[seq_len(K - 1)], fun = .pll_Jeffreys, 
                                       start = ret$par)
                     }
                     if (Fret$convergence == 0) {
@@ -869,7 +869,7 @@
         
     } else if (length(fix) == length(start)) {
         ret <- list(par = start, 
-                    value = fn(start))
+                    value = fun(start))
     } else {
         ret <- .profile(start, fix = fix)
     }

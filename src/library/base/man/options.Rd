@@ -213,7 +213,7 @@ getOption(x, default = NULL)
     \item{\code{keep.source}:}{When \code{TRUE}, the source code for
       functions (newly defined or loaded) is stored internally
       allowing comments to be kept in the right places.  Retrieve the
-      source by printing or using \code{deparse(fn, control =
+      source by printing or using \code{deparse(fun, control =
       "useSource")}.
 
       The default is \code{\link{interactive}()}, i.e., \code{TRUE} for

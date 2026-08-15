@@ -109,7 +109,7 @@ so_symbol_names_table <-
       "linux, C, gcc, assert, __assert_fail_base",
       "linux, C, gcc, exit, exit",
       "linux, C, gcc, _exit, _exit", ## may not be seen
-      "linux, C, gcc, _Exit, _Exit", ## _Exit is C99 and may not be a fn call
+      "linux, C, gcc, _Exit, _Exit", ## _Exit is C99 and may not be a fun call
       "linux, C, gcc, printf, printf",
       "linux, C, gcc, printf, __printf_chk",
       "linux, C, gcc, printf, puts",

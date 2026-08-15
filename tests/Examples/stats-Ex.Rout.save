@@ -13354,10 +13354,10 @@ Cumulative Proportion  0.4173 0.6498 0.7569
 > ## NB most of the methods in the standard packages are hidden.
 > ## Output will depend on what namespaces are (or have been) loaded.
 > ## IGNORE_RDIFF_BEGIN
-> for(fn in methods("predict"))
+> for(fun in methods("predict"))
 +    try({
-+        f <- eval(substitute(getAnywhere(fn)$objs[[1]], list(fn = fn)))
-+        cat(fn, ":\n\t", deparse(args(f)), "\n")
++        f <- eval(substitute(getAnywhere(fun)$objs[[1]], list(fun = fun)))
++        cat(fun, ":\n\t", deparse(args(f)), "\n")
 +        }, silent = TRUE)
 predict.Arima :
 	 function (object, n.ahead = 1L, newxreg = NULL, se.fit = TRUE,      ...)  NULL 

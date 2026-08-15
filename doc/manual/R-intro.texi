@@ -5009,7 +5009,7 @@ Here is an example from Bates & Watts (1988), page 51.  The data are:
 The fit criterion to be minimized is:
 
 @example
-> fn <- function(p) sum((y - (p[1] * x)/(p[2] + x))^2)
+> fun <- function(p) sum((y - (p[1] * x)/(p[2] + x))^2)
 @end example
 
 In order to do the fit we need initial estimates of the parameters.  One
@@ -5027,7 +5027,7 @@ We could do better, but these starting values of 200 and 0.1 seem
 adequate.  Now do the fit:
 
 @example
-> out <- nlm(fn, p = c(200, 0.1), hessian = TRUE)
+> out <- nlm(fun, p = c(200, 0.1), hessian = TRUE)
 @end example
 @findex nlm
 
@@ -5102,7 +5102,7 @@ which clearly could also be fit by @code{glm()}.  The data are:
 The negative log-likelihood to minimize is:
 
 @example
-> fn <- function(p)
+> fun <- function(p)
    sum( - (y*(p[1]+p[2]*x) - n*log(1+exp(p[1]+p[2]*x))
            + log(choose(n, y)) ))
 @end example
@@ -5111,7 +5111,7 @@ The negative log-likelihood to minimize is:
 We pick sensible starting values and do the fit:
 
 @example
-> out <- nlm(fn, p = c(-50,20), hessian = TRUE)
+> out <- nlm(fun, p = c(-50,20), hessian = TRUE)
 @end example
 @findex nlm
 

@@ -17,17 +17,17 @@
   box-constrained optimization and simulated annealing.
 }
 \usage{
-optim(par, fn, gr = NULL, \dots,
+optim(par, fun, gr = NULL, \dots,
       method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN",
                  "Brent"),
       lower = -Inf, upper = Inf,
       control = list(), hessian = FALSE)
 
-optimHess(par, fn, gr = NULL, \dots, control = list())
+optimHess(par, fun, gr = NULL, \dots, control = list())
 }
 \arguments{
  \item{par}{Initial values for the parameters to be optimized over.}
- \item{fn}{A function to be minimized (or maximized), with first
+ \item{fun}{A function to be minimized (or maximized), with first
    argument the vector of parameters over which minimization is to take
    place.  It should return a scalar result.}
  \item{gr}{A function to return the gradient for the \code{"BFGS"},
@@ -37,7 +37,7 @@ optimHess(par, fn, gr = NULL, \dots, control = list())
    For the \code{"SANN"} method it specifies a function to generate a new
    candidate point.  If it is \code{NULL} a default Gaussian Markov
    kernel is used.}
- \item{\dots}{Further arguments to be passed to \code{fn} and \code{gr}.}
+ \item{\dots}{Further arguments to be passed to \code{fun} and \code{gr}.}
  \item{method}{The method to be used. See \sQuote{Details}.  Can be abbreviated.}
  \item{lower, upper}{Bounds on the variables for the \code{"L-BFGS-B"}
    method, or bounds in which to \emph{search} for method \code{"Brent"}.}
@@ -103,14 +103,14 @@ optimHess(par, fn, gr = NULL, \dots, control = list())
 
   Method \code{"Brent"} is for one-dimensional problems only, using
   \code{\link{optimize}(\var{ff}, lower, upper, tol = control$reltol)} where
-  \code{\var{ff}} is \code{function(par) fn(par, ...)/control$fnscale}.  It can
+  \code{\var{ff}} is \code{function(par) fun(par, ...)/control$fnscale}.  It can
   be useful in cases when
   \code{optim()} is used inside other functions where only \code{method}
   can be specified, such as in \code{\link{mle}} from package \pkg{stats4}.
 
-  Function \code{fn} can return \code{NA} or \code{Inf} if the function
+  Function \code{fun} can return \code{NA} or \code{Inf} if the function
   cannot be evaluated at the supplied value, but the initial value must
-  have a computable finite value of \code{fn}.
+  have a computable finite value of \code{fun}.
   (Except for method \code{"L-BFGS-B"} where the values should always be
   finite.)
 
@@ -128,9 +128,9 @@ optimHess(par, fn, gr = NULL, \dots, control = list())
       there are six levels of tracing.  (To understand exactly what
       these do see the source code: higher levels give more detail.)}
     \item{\code{fnscale}}{An overall scaling to be applied to the value
-      of \code{fn} and \code{gr} during optimization. If negative,
+      of \code{fun} and \code{gr} during optimization. If negative,
       turns the problem into a maximization problem. Optimization is
-      performed on \code{fn(par)/fnscale}.}
+      performed on \code{fun(par)/fnscale}.}
     \item{\code{parscale}}{A vector of scaling values for the parameters.
         Optimization is performed on \code{par/parscale} and these should be
         comparable in the sense that a unit change in any element produces
@@ -187,22 +187,22 @@ optimHess(par, fn, gr = NULL, \dots, control = list())
   }
 
   Any names given to \code{par} will be copied to the vectors passed to
-  \code{fn} and \code{gr}.  Note that no other attributes of \code{par}
+  \code{fun} and \code{gr}.  Note that no other attributes of \code{par}
   are copied over.
 
-  The parameter vector passed to \code{fn} has special semantics and may
+  The parameter vector passed to \code{fun} has special semantics and may
   be shared between calls: the function should not change or copy it.
 }
-%% when numerical derivatives are used, fn is called repeatedly with
+%% when numerical derivatives are used, fun is called repeatedly with
 %% modified copies of the same object.
 
 \value{
   For \code{optim}, a list with components:
   \item{par}{The best set of parameters found.}
-  \item{value}{The value of \code{fn} corresponding to \code{par}.}
+  \item{value}{The value of \code{fun} corresponding to \code{par}.}
   \item{counts}{A two-element integer vector giving the number of calls
-    to \code{fn} and \code{gr} respectively. This excludes those calls needed
-    to compute the Hessian, if requested, and any calls to \code{fn} to
+    to \code{fun} and \code{gr} respectively. This excludes those calls needed
+    to compute the Hessian, if requested, and any calls to \code{fun} to
     compute a finite-difference approximation to the gradient.}
   \item{convergence}{An integer code. \code{0} indicates successful
     completion (which is always the case for \code{"SANN"} and

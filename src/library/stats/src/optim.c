@@ -214,7 +214,7 @@ SEXP optim(SEXP call, SEXP op, SEXP args, SEXP rho)
     par = CAR(args);
     OS->names = getAttrib(par, R_NamesSymbol);
     args = CDR(args); fn = CAR(args);
-    if (!isFunction(fn)) error(_("'fn' is not a function"));
+    if (!isFunction(fn)) error(_("'fun' is not a function"));
     args = CDR(args); gr = CAR(args);
     args = CDR(args); method = CAR(args);
     if (!isString(method)|| LENGTH(method) != 1)
@@ -420,7 +420,7 @@ SEXP optimhess(SEXP call, SEXP op, SEXP args, SEXP rho)
     npar = LENGTH(par);
     OS->names = getAttrib(par, R_NamesSymbol);
     args = CDR(args); fn = CAR(args);
-    if (!isFunction(fn)) error(_("'fn' is not a function"));
+    if (!isFunction(fn)) error(_("'fun' is not a function"));
     args = CDR(args); gr = CAR(args);
     args = CDR(args); options = CAR(args);
     OS->fnscale = asReal(getListElement(options, "fnscale"));

@@ -717,8 +717,8 @@ msgstr "valor de diferència finita no definit [%d]"
 
 #: optim.c:217 optim.c:423
 #, fuzzy
-msgid "'fn' is not a function"
-msgstr "'fn' no és una funció"
+msgid "'fun' is not a function"
+msgstr "'fun' no és una funció"
 
 #: optim.c:235 optim.c:429
 #, fuzzy

@@ -44,35 +44,35 @@ as.stepfun(x, \dots)
   Given the vectors \eqn{(x_1, \ldots, x_n)}{(x[1], \dots, x[n])} and
   \eqn{(y_0,y_1,\ldots, y_n)}{(y[0], y[1], \dots, y[n])} (one value
   more!), \code{stepfun(x, y, \dots)} returns an interpolating
-  \sQuote{step} function, say \code{fn}. I.e., \eqn{fn(t) =
+  \sQuote{step} function, say \code{fun}. I.e., \eqn{fun(t) =
     c}\eqn{_i}{[i]} (constant) for \eqn{t \in (x_i, x_{i+1})}{t in (
     x[i], x[i+1])} and at the abscissa values, if (by default)
-  \code{right = FALSE}, \eqn{fn(x_i) = y_i}{fn(x[i]) = y[i]} and for
-  \code{right = TRUE}, \eqn{fn(x_i) = y_{i-1}}{fn(x[i]) = y[i-1]}, for
+  \code{right = FALSE}, \eqn{fun(x_i) = y_i}{fun(x[i]) = y[i]} and for
+  \code{right = TRUE}, \eqn{fun(x_i) = y_{i-1}}{fun(x[i]) = y[i-1]}, for
   \eqn{i=1,\ldots,n}{i=1, \dots, n}.
 
   The value of the constant \eqn{c_i}{c[i]} above depends on the
   \sQuote{continuity} parameter \code{f}.
   For the default, \code{right = FALSE, f = 0},
-  \code{fn} is a \emph{cadlag} function, i.e., continuous from the right,
+  \code{fun} is a \emph{cadlag} function, i.e., continuous from the right,
   limits from the left, so that the function is piecewise constant on
   intervals that include their \emph{left} endpoint.
   In general, \eqn{c_i}{c[i]} is interpolated in between the
   neighbouring \eqn{y} values,
   \eqn{c_i= (1-f) y_i + f\cdot y_{i+1}}{c[i] = (1-f)*y[i] + f*y[i+1]}.
-  Therefore, for non-0 values of \code{f}, \code{fn} may no longer be a proper
+  Therefore, for non-0 values of \code{f}, \code{fun} may no longer be a proper
   step function, since it can be discontinuous from both sides, unless
   \code{right = TRUE, f = 1} which is left-continuous (i.e., constant
   pieces contain their right endpoint).
 }
 \value{
-  A function of class \code{"stepfun"}, say \code{fn}.
+  A function of class \code{"stepfun"}, say \code{fun}.
 
   There are methods available for summarizing (\code{"summary(.)"}),
   representing (\code{"print(.)"}) and plotting  (\code{"plot(.)"}, see
   \code{\link{plot.stepfun}}) \code{"stepfun"} objects.
 
-  The \code{\link{environment}} of \code{fn} contains all the
+  The \code{\link{environment}} of \code{fun} contains all the
   information needed;
     \item{"x","y"}{the original arguments}
     \item{"n"}{number of knots (x values)}
@@ -80,7 +80,7 @@ as.stepfun(x, \dots)
     \item{"yleft", "yright"}{the function values \emph{outside} the knots}
     \item{"method"}{(always \code{== "constant"}, from
       \code{\link{approxfun}(.)}).}
-  The knots are also available via \code{knots(fn)}.
+  The knots are also available via \code{knots(fun)}.
 }
 \author{
   Martin Maechler, \email{maechler@stat.math.ethz.ch} with some basic

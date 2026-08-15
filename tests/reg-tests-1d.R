@@ -1311,11 +1311,11 @@ stopifnot(identical(x, "last"))
 
 
 ## sys.on.exit() is called in the correct frame
-fn <- function() {
+fun <- function() {
     on.exit("foo")
     identity(sys.on.exit())
 }
-stopifnot(identical(fn(), "foo"))
+stopifnot(identical(fun(), "foo"))
 
 
 ## 0-length logic with raw()
@@ -1781,13 +1781,13 @@ stopifnot(identical(order(x, decreasing=TRUE), as.integer(c(3, 1, 2))))
 ## dump() & dput() where influenced by  "deparse.max.lines" option
 op <- options(deparse.max.lines=NULL) # here
 oNam <- "simplify2array" # (base function which is not very small)
-fn <- get(oNam)
-ffn <- format(fn)
-dp.1 <- capture.output(dput(fn))
+fun <- get(oNam)
+ffn <- format(fun)
+dp.1 <- capture.output(dput(fun))
 dump(oNam, textConnection("du.1", "w"))
 stopifnot(length(ffn) > 3, identical(dp.1, ffn), identical(du.1[-1], dp.1))
 options(deparse.max.lines = 2) ## "truncate heavily"
-dp.2 <- capture.output(dput(fn))
+dp.2 <- capture.output(dput(fun))
 dump(oNam, textConnection("du.2", "w"))
 stopifnot(identical(dp.2, dp.1),
           identical(du.2, du.1))
@@ -3261,9 +3261,9 @@ stopifnot(
 
 ## PR#17659: Some *.colors() producers have appended (alpha=1) info even by default
 fnms <- c(apropos("[.]colors$"), "rainbow") # 8 x "<foo>.colors" + rainbow
-for(fn in fnms) {
-    Fn <- get(fn, mode="function")
-    cat(sprintf("%14s(n), n = 1,2,3 : ", fn))
+for(fun in fnms) {
+    Fn <- get(fun, mode="function")
+    cat(sprintf("%14s(n), n = 1,2,3 : ", fun))
     for(n in 1:3)
         stopifnot(length(cc <- Fn(n)) == n,
                   nchar(cc) == 1L+6L, # just RGB, no alpha
@@ -4100,9 +4100,9 @@ stopifnot(is.na(D1[1]), identical(D1, rev(D2)))
 
 ## ..elt() propagates visibility consistently with ..n and other args, PR#17905
 local({
-    fn <- function(...) list(withVisible(...elt(1)), withVisible(..2))
+    fun <- function(...) list(withVisible(...elt(1)), withVisible(..2))
     stopifnot(identical(
-	fn(invisible(NULL), invisible(NULL)),
+	fun(invisible(NULL), invisible(NULL)),
 	rep(list(withVisible(invisible(NULL))), 2)
     ))
 })
@@ -4127,7 +4127,7 @@ if(.Machine$sizeof.pointer >= 8) {
 ## PR#17907 -- capture.output() now using standard evaluation (SE) :
 ## parent.frame() returns the correct environment in capture.output()
 local({
-    fn <- function(env = parent.frame()) {
+    fun <- function(env = parent.frame()) {
 	capture.output(env)
 	list(
 	    env,
@@ -4135,7 +4135,7 @@ local({
 	)
     }
     env <- environment()
-    out <- fn()
+    out <- fun()
     stopifnot(
 	identical(out[[1]], out[[2]]),
 	identical(out[[1]], env)

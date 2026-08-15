@@ -620,8 +620,8 @@ msgid "non-finite finite-difference value [%d]"
 msgstr ""
 
 #: optim.c:217 optim.c:423
-msgid "'fn' is not a function"
-msgstr "'fn' não é uma função"
+msgid "'fun' is not a function"
+msgstr "'fun' não é uma função"
 
 #: optim.c:235 optim.c:429
 msgid "'parscale' is of the wrong length"
@@ -987,7 +987,7 @@ msgstr "valor faltante nas últimas %d observações"
 
 #, fuzzy
 #~ msgid "'y' is a factor"
-#~ msgstr "'fn' não é uma função"
+#~ msgstr "'fun' não é uma função"
 
 #~ msgid "allocation error in smooth(*, '3RSR')."
 #~ msgstr "erro de alocação em smooth(*,'3RSR')."

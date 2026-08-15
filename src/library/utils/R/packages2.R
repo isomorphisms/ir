@@ -318,11 +318,11 @@ install.packages <-
         ## the only known reliable way is to try it
         ok <- dir.exists(lib) # dir might not exist, PR#14311
         if(ok) {
-            fn <- file.path(lib, paste0("_test_dir_", Sys.getpid()))
-            unlink(fn, recursive = TRUE) # precaution
-            res <- try(dir.create(fn, showWarnings = FALSE))
+            fun <- file.path(lib, paste0("_test_dir_", Sys.getpid()))
+            unlink(fun, recursive = TRUE) # precaution
+            res <- try(dir.create(fun, showWarnings = FALSE))
             if(inherits(res, "try-error") || !res) ok <- FALSE
-            else unlink(fn, recursive = TRUE)
+            else unlink(fun, recursive = TRUE)
         }
     }
     if(length(lib) == 1L && !ok) {

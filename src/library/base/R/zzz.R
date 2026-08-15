@@ -701,8 +701,8 @@ local({
 		"PLACEHOLDER", "as.data.frame.vector", "as.data.frame")))
     ii <- c(2L, 3L,2L, 3L)
     stopifnot(identical(bdy[[ii]], "PLACEHOLDER"))
-    ASDFV <- function(fn) {## = our deprecated AS.Data.Frame.Vector()
-        bdy[[ii]] <- fn  # now basically calling `body(.) <- bdy` :
+    ASDFV <- function(fun) {## = our deprecated AS.Data.Frame.Vector()
+        bdy[[ii]] <- fun  # now basically calling `body(.) <- bdy` :
         as.function(c(as.list(formals(as.data.frame.vector)), list(bdy)), .BaseNamespaceEnv)
     }
     ## now replace all the as.data.frame.<foo> methods which were := as.data.frame.vector :

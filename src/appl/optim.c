@@ -682,7 +682,7 @@ void lbfgsb(int n, int m, double *x, double *l, double *u, int *nbd,
 	if (strncmp(task, "FG", 2) == 0) {
 	    f = fminfn(n, x, ex);
 	    if (!R_FINITE(f))
-		error(_("L-BFGS-B needs finite values of 'fn'"));
+		error(_("L-BFGS-B needs finite values of 'fun'"));
 	    fmingr(n, x, g, ex);
 	} else if (strncmp(task, "NEW_X", 5) == 0) {
 	    iter++;

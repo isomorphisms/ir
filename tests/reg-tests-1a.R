@@ -830,11 +830,11 @@ fisher.test(x)
 ## By: Ian White <imsw@holyrood.ed.ac.uk>
 x <- c(2,5,8,10)
 y <- c(1.2266,-1.7606,-0.5051,1.0390)
-fn <- splinefun(x, y, method="natural")
-xx1 <- fn(0:12)
+fun <- splinefun(x, y, method="natural")
+xx1 <- fun(0:12)
 # should be the same if reflected
-fn <- splinefun(rev(-x),rev(y),method="natural")
-xx2 <- fn(0:-12)
+fun <- splinefun(rev(-x),rev(y),method="natural")
+xx2 <- fun(0:-12)
 stopifnot(all.equal(xx1, xx2))
 # should be the same as interpSpline
 library(splines)

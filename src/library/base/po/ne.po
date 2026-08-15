@@ -43,7 +43,7 @@ msgid "REPORT must be > 0 (method = \"L-BFGS-B\")"
 msgstr "रिपोर्ट ० भन्दा बढी हुनुपर्छ (विधि = \"L-BFGS-B\")"
 
 #: src/appl/optim.c:685
-msgid "L-BFGS-B needs finite values of 'fn'"
+msgid "L-BFGS-B needs finite values of 'fun'"
 msgstr ""
 
 #: src/appl/optim.c:741

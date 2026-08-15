@@ -2386,7 +2386,7 @@ formals(.difftime1)$units <- "secs"
 ##' list_(a, b, cc)  creates a *named* list  using the actual arguments' names
 list_ <- function(...) `names<-`(list(...), vapply(sys.call()[-1L], as.character, ""))
 L <- lapply(list_(identity, ts, .Date, .POSIXct, .difftime1),
-            \(fn) { fnm0 <- (fnm <- fn(m))[0L, , drop = FALSE]
+            \(fun) { fnm0 <- (fnm <- fun(m))[0L, , drop = FALSE]
                 list(f0 = fnm0, f = diff(fnm, lag = 2L, differences = 5L)) })
 str(L, give.attr=FALSE) # now  0 x 1  matrices
   vapply(L, \(.) identical(.$f0, .$f), NA) # where all FALSE; now not all TRUE
@@ -2711,8 +2711,8 @@ local({
     expr <- forcedExpr(".TAOCP1997init", baseenv())
     stopifnot(is.language(expr))
     # `.Library.site` is an active binding in base
-    fn <- activeBindingFunction(as.name(".Library.site"), baseenv())
-    stopifnot(is.function(fn))
+    fun <- activeBindingFunction(as.name(".Library.site"), baseenv())
+    stopifnot(is.function(fun))
 })
 
 ## R_DelayedBindingExpression and R_DelayedBindingEnvironment
@@ -2864,12 +2864,12 @@ local({
 local({
     dotsExist <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsExist(env, inherits))
-    fn <- function(...) dotsExist()
+    fun <- function(...) dotsExist()
     fn_no_dots <- function() dotsExist()
     stopifnot(
-        isTRUE(fn()),
-        isTRUE(fn(1)),
-        isTRUE(fn(1, 2, 3)),
+        isTRUE(fun()),
+        isTRUE(fun(1)),
+        isTRUE(fun(1, 2, 3)),
         isFALSE(fn_no_dots())
     )
     ## Non-DOTSXP values bound to `...`
@@ -2885,19 +2885,19 @@ local({
 local({
     dotsExist <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsExist(env, inherits))
-    fn <- function(...) local(dotsExist(inherits = FALSE))
-    stopifnot(isFALSE(fn()))
-    stopifnot(isFALSE(fn(1)))
-    stopifnot(isFALSE(fn(1, 2, 3)))
+    fun <- function(...) local(dotsExist(inherits = FALSE))
+    stopifnot(isFALSE(fun()))
+    stopifnot(isFALSE(fun(1)))
+    stopifnot(isFALSE(fun(1, 2, 3)))
 })
 
 ## C API: R_DotsLength() does not reach into parent environments (PR#18928)
 local({
     dotsLength <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsLength(env, inherits))
-    fn <- function(...) local(dotsLength(inherits = FALSE))
+    fun <- function(...) local(dotsLength(inherits = FALSE))
     stopifnot(grepl("incorrect context",
-                    tryCatch(fn(1, 2), error = conditionMessage)))
+                    tryCatch(fun(1, 2), error = conditionMessage)))
     ## Works when `...` is directly in the frame
     fn2 <- function(...) dotsLength(inherits = FALSE)
     stopifnot(
@@ -2915,9 +2915,9 @@ local({
 local({
     dotsNames <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsNames(env, inherits))
-    fn <- function(...) local(dotsNames(inherits = FALSE))
+    fun <- function(...) local(dotsNames(inherits = FALSE))
     stopifnot(grepl("incorrect context",
-                    tryCatch(fn(a = 1), error = conditionMessage)))
+                    tryCatch(fun(a = 1), error = conditionMessage)))
     ## Works when `...` is directly in the frame
     fn2 <- function(...) dotsNames(inherits = FALSE)
     stopifnot(
@@ -2935,9 +2935,9 @@ local({
 local({
     dotsElt <- function(i, env = parent.frame(), inherits = TRUE)
         .Internal(dotsElt(i, env, inherits))
-    fn <- function(...) local(dotsElt(1L, inherits = FALSE))
+    fun <- function(...) local(dotsElt(1L, inherits = FALSE))
     stopifnot(grepl("no ... to look in",
-                    tryCatch(fn(42), error = conditionMessage)))
+                    tryCatch(fun(42), error = conditionMessage)))
     ## Works when `...` is directly in the frame
     fn2 <- function(...) dotsElt(1L, inherits = FALSE)
     stopifnot(
@@ -2957,9 +2957,9 @@ local({
 local({
     getDotType <- function(i, env = parent.frame(), inherits = TRUE)
         .Internal(getDotType(i, env, inherits))
-    fn <- function(...) local(getDotType(1L, inherits = FALSE))
+    fun <- function(...) local(getDotType(1L, inherits = FALSE))
     stopifnot(grepl("no ... to look in",
-                    tryCatch(fn(1), error = conditionMessage)))
+                    tryCatch(fun(1), error = conditionMessage)))
     ## (positive tests above in "simple test for R_GetDotType")
 })
 
@@ -2972,9 +2972,9 @@ local({
     dotDelayedEnv <- function(i, env = parent.frame(), inherits = TRUE)
         .Internal(dotDelayedEnvironment(i, env, inherits))
     x <- 1
-    fn <- function(...) local(dotDelayedExpr(1L, inherits = FALSE))
+    fun <- function(...) local(dotDelayedExpr(1L, inherits = FALSE))
     stopifnot(grepl("no ... to look in",
-                    tryCatch(fn(x), error = conditionMessage)))
+                    tryCatch(fun(x), error = conditionMessage)))
     fn2 <- function(...) local(dotDelayedEnv(1L, inherits = FALSE))
     stopifnot(grepl("no ... to look in",
                     tryCatch(fn2(x), error = conditionMessage)))
@@ -2986,12 +2986,12 @@ local({
     dotForcedExpr <- function(i, env = parent.frame(), inherits = TRUE)
         .Internal(dotForcedExpression(i, env, inherits))
     x <- 1
-    fn <- function(...) {
+    fun <- function(...) {
         force(..1)
         local(dotForcedExpr(1L, inherits = FALSE))
     }
     stopifnot(grepl("no ... to look in",
-                    tryCatch(fn(x), error = conditionMessage)))
+                    tryCatch(fun(x), error = conditionMessage)))
 })
 
 ## R API: ...length() retains inherited scoping (PR#18928)

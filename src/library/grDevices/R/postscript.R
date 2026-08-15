@@ -58,14 +58,14 @@ check.options <-
 	    i.match <- oldnames[matches]
 	    prev <- old[i.match]
 	    doubt <- rep.int(FALSE, length(prev))
-	    for(fn in check.attributes)
-		if(any(ii <- sapply(prev, fn) != sapply(new, fn))) {
+	    for(fun in check.attributes)
+		if(any(ii <- sapply(prev, fun) != sapply(new, fun))) {
                     ## skip 'fonts';
                     ii <- ii & (names(prev) != "fonts")
                     if(!any(ii)) next
 		    doubt <- doubt | ii
 		    do.keep <- ii & !override.check
-		    warning(paste(sQuote(paste0(fn, "(", names(prev[ii]), ")" )),
+		    warning(paste(sQuote(paste0(fun, "(", names(prev[ii]), ")" )),
                                   collapse = " and "), " ",
                             ngettext(as.integer(sum(ii)),
                                      "differs between new and previous",

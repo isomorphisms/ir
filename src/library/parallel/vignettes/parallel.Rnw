@@ -823,31 +823,31 @@ For \CRANpkg{snow}-like clusters the trick is to ensure that \code{...}
 has any promises forced whilst the information is still available.
 This is how \CRANpkg{boot} does it:
 <<eval=FALSE>>=
-    fn <- function(r) statistic(data, i[r, ], ...)
+    fun <- function(r) statistic(data, i[r, ], ...)
     RR <- sum(R)
     res <- if (ncpus > 1L && (have_mc || have_snow)) {
         if (have_mc) {
-            parallel::mclapply(seq_len(RR), fn, mc.cores = ncpus)
+            parallel::mclapply(seq_len(RR), fun, mc.cores = ncpus)
         } else if (have_snow) {
             list(...) # evaluate any promises
             if (is.null(cl)) {
                 cl <- parallel::makePSOCKcluster(rep("localhost", ncpus))
                 if(RNGkind()[1L] == "L'Ecuyer-CMRG")
                     parallel::clusterSetRNGStream(cl)
-                res <- parallel::parLapply(cl, seq_len(RR), fn)
+                res <- parallel::parLapply(cl, seq_len(RR), fun)
                 parallel::stopCluster(cl)
                 res
-            } else parallel::parLapply(cl, seq_len(RR), fn)
+            } else parallel::parLapply(cl, seq_len(RR), fun)
         }
-    } else lapply(seq_len(RR), fn)
+    } else lapply(seq_len(RR), fun)
 @
 Note that \code{...} is an argument to \code{boot}, and so after
 <<eval=FALSE>>=
             list(...) # evaluate any promises
 @
 it refers to objects within the evaluation frame of \code{boot} and
-hence the environment of \code{fn} which will therefore be sent to the
-workers along with \code{fn}.
+hence the environment of \code{fun} which will therefore be sent to the
+workers along with \code{fun}.
 
 \section{Differences from earlier versions}
 

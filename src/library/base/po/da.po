@@ -53,8 +53,8 @@ msgid "REPORT must be > 0 (method = \"L-BFGS-B\")"
 msgstr "REPORT skal være > 0 (metode = \"L-BFGS-B\")"
 
 #: src/appl/optim.c:685
-msgid "L-BFGS-B needs finite values of 'fn'"
-msgstr "L-BFGS-B kræver endelige værdier for 'fn'"
+msgid "L-BFGS-B needs finite values of 'fun'"
+msgstr "L-BFGS-B kræver endelige værdier for 'fun'"
 
 #: src/appl/optim.c:741
 msgid "trace, REPORT must be >= 0 (method = \"SANN\")"
