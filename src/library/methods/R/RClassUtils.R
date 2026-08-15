@@ -1243,7 +1243,7 @@ completeSubclasses <-
     ## Once again, conditional relations are eliminated
     superExts <- lapply(directSupers, .noncondExtsClass)
     names(superExts) <- directSupers
-    retain = .choosePos(classDef@className, what, superExts, affected)
+    retain <- .choosePos(classDef@className, what, superExts, affected)
     if(is.list(retain)) {
       these <- retain[[2]]
       conflicts <- unique(c(conflicts, these)) # append the new conflicts

@@ -603,20 +603,20 @@ setCacheOnAssign <- function(env, onOff = cacheOnAssign(env))
 }
 
 .getImportsEnv <- function(pkg) {
-    iname = paste0("imports:", pkg)
-    empty = emptyenv()
-    env = asNamespace(pkg)
+    iname <- paste0("imports:", pkg)
+    empty <- emptyenv()
+    env <- asNamespace(pkg)
 
     while(!identical(env, empty)) {
         if (identical(attr(env, "name"), iname))
             return(env)
-        env = parent.env(env)
+        env <- parent.env(env)
     }
     NULL
 }
 
 .updateInImportsEnv <- function(what, newFun, importingPkg) {
-    where = .getImportsEnv(importingPkg)
+    where <- .getImportsEnv(importingPkg)
     if (!is.null(where) && (what %in% names(where))) {
         .assignOverBinding(what, newFun, where, FALSE)
     }

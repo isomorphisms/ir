@@ -27,7 +27,7 @@
     havex64 <- file_test("-d", file.path(srcdir, "bin", "x64"))
 
     ## need DOS-style paths
-    srcdir = gsub("/", "\\", srcdir, fixed = TRUE)
+    srcdir <- gsub("/", "\\", srcdir, fixed = TRUE)
 
     Rver <- readLines("../../../VERSION")[1L]
     Rver <- sub("Under .*$", "Pre-release", Rver)

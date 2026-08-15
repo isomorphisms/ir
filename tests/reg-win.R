@@ -9,7 +9,7 @@ gc()
 
 
 ## Using a closed progress bar (PR#13709)
-bar = winProgressBar(min = 0, max = 100, width = 300)
+bar <- winProgressBar(min = 0, max = 100, width = 300)
 setWinProgressBar(bar, 25)
 close(bar)
 try(setWinProgressBar(bar, 50))

@@ -64,7 +64,7 @@ f <- function(x = 1:2,
     ##_ e(stopifnot(is.numeric(dummy)))
 }
 
-old=options()
+old <- options()
 
 oldoptimize <- getCompilerOption("optimize")
 oldjit <- enableJIT(3)

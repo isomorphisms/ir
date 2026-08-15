@@ -107,8 +107,8 @@ pattern <- function(grob,
         width <- unit(width, default.units)
     if (! is.unit(height))
         height <- unit(height, default.units)
-    hjust = resolveHJust(just, hjust)
-    vjust = resolveVJust(just, vjust)
+    hjust <- resolveHJust(just, hjust)
+    vjust <- resolveVJust(just, vjust)
 
     if (length(x) != 1 || length(y) != 1 ||
         length(width) != 1 || length(height) != 1)
@@ -459,4 +459,3 @@ unresolvePattern.GridResolvedPattern <- function(pattern) {
         class(pattern)[!(class(pattern) %in% "GridResolvedPattern")]
     pattern
 }
-

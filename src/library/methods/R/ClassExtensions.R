@@ -98,7 +98,7 @@ S3Part <- function(object, strictS3 = FALSE, S3Class) {
       stop(gettextf("the 'S3Class' argument must be a superclass of %s:  not true of class %s", dQuote(class(object)), dQuote(S3Class)), domain = NA)
     if(strictS3)
       keepSlots <- keepSlots[is.na(match(keepSlots, ".S3Class"))]
-    deleteSlots = slotNames(classDef)
+    deleteSlots <- slotNames(classDef)
     deleteSlots <- deleteSlots[is.na(match(deleteSlots,keepSlots))]
     for(slot in deleteSlots)
       attr(object, slot) <- NULL
@@ -409,4 +409,3 @@ makeExtends <- function(Class,
     }
     exts
 }
-

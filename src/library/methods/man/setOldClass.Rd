@@ -248,7 +248,7 @@ showClass("data.frame")# to see the predefined S4 "oldClass"
 ## and "ylm" indirectly
 setClass("xlm", slots = c(eps = "numeric"), contains = "lm")
 setClass("ylm", slots = c(header = "character"), contains = "xlm")
-ym1 = new("ylm", myLm, header = "Example", eps = 0.)
+ym1 <- new("ylm", myLm, header = "Example", eps = 0.)
 ## for more examples, see ?\link{S3Class}.
 
 

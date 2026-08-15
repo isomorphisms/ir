@@ -26,7 +26,7 @@ RSiteSearch <- function(string,
 			matchesPerPage = 20,
 			words = c("all", "any"))
 {
-    matchingDB = list(functions = "cran-help", descriptions = "cran-info", news = "cran-news",
+    matchingDB <- list(functions = "cran-help", descriptions = "cran-info", news = "cran-news",
                       Rfunctions = "r-help", Rmanuals = "r-manuals", READMEs = "cran-readme",
                       views = "cran-views", vignettes = "cran-vignettes")
 

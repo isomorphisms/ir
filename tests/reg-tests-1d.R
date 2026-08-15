@@ -2642,7 +2642,7 @@ stopifnot(exprs = {
     ## New formula(<character>) specs:
     ## These give deprecation warnings:
     is.list(op <- options(warn = 1))
-    identical(formula("ran = ~ 1|G"), ~ 1 | G)
+    is.list(tools::assertError(formula("ran = ~ 1|G")))
     identical(formula(c("~", "foo")), ~ foo )
     identical(formula("({y ~ x})"), y ~ x)
     identical(formula("{ ~ x }"),   ~ x)
@@ -2653,7 +2653,7 @@ stopifnot(exprs = {
     identical(formula(c("~",    "x","+    (1 | G)")), ~x) ## NOT YET:   ~ x + (1 | G))
     is.list(options(op))
 })
-tools::assertWarning(formula("ran= ~ 1|G"),"deprecatedWarning", verbose=TRUE)
+tools::assertError(formula("ran= ~ 1|G"), verbose=TRUE)
 tools::assertWarning(formula(c("~", "x")), "deprecatedWarning", verbose=TRUE)
 tools::assertWarning(formula("({y ~ x})"), "deprecatedWarning", verbose=TRUE)
 tools::assertWarning(formula("{ ~ x }"),   "deprecatedWarning", verbose=TRUE)
@@ -4652,7 +4652,7 @@ altrep_dup_test <- function(vec, nalast, fromlast, s3class) {
 
 altint_dup_check <- function(vec, numna, nalast, fromlast, s3class = NULL) {
      if(length(vec) > 0 && numna > 0) {
-         vec[1:numna] = NA_integer_
+         vec[1:numna] <- NA_integer_
      }
      altrep_dup_test(vec, nalast = nalast, fromlast = fromlast, s3class = s3class)
 }
