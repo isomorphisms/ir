@@ -22,8 +22,116 @@ options(warn = 1)
 assertErrV  <- function(...) tools::assertError  (..., verbose=TRUE)
 assertWarnV <- function(...) tools::assertWarning(..., verbose=TRUE)
 
-shortFunction <- parse(text = "fn(x) x", keep.source = FALSE)[[1L]]
-stopifnot(identical(shortFunction, quote(function(x) x)))
+## Assignment points somewhere; equality compares.
+parse1 <- function(text) parse(text = text, keep.source = FALSE)[[1L]]
+stopifnot(
+    identical(parse1("fn(x) x"), quote(function(x) x)),
+    identical(parse1("1 = 1"), quote(1 == 1)),
+    isTRUE(eval(parse1("1 = 1"))),
+    identical(eval(parse1("1 = 2")), FALSE),
+    isTRUE(eval(parse1("1 + 1 = 2"))),
+    isTRUE(eval(parse1("1 == 1"))),
+    inherits(try(parse(text = "1 = 1 = TRUE"), silent = TRUE),
+             "try-error")
+)
+
+equalityEnv <- new.env(parent = baseenv())
+equalityEnv$x <- 17L
+stopifnot(identical(eval(parse1("x = 18L"), equalityEnv), FALSE),
+          identical(equalityEnv$x, 17L))
+
+named <- function(first = 1L, second = 2L) c(first, second)
+stopifnot(identical(named(second = 9L), c(1L, 9L)),
+          identical(named(first = 8L), c(8L, 2L)))
+
+## Directional assignment, lambda spellings and mathematical operators.
+if (UTF8) {
+    LEFT        <- intToUtf8(0x2190) # <-
+    SUPER_LEFT  <- intToUtf8(0x219e) # <<-
+    RIGHT       <- intToUtf8(0x2192) # ->
+    SUPER_RIGHT <- intToUtf8(0x21a0) # ->>
+    LAMBDA      <- intToUtf8(0x03bb)
+    FLORIN      <- intToUtf8(0x0192)
+    DIVIDE      <- intToUtf8(0x00f7)
+    TIMES       <- intToUtf8(0x00d7)
+    COMPOSE     <- intToUtf8(0x2218)
+
+    stopifnot(
+        identical(parse1(paste("x", LEFT, "1L")), quote(x <- 1L)),
+        identical(parse1(paste("x", SUPER_LEFT, "1L")), quote(x <<- 1L)),
+        identical(parse1(paste("1L", RIGHT, "x")), quote(x <- 1L)),
+        identical(parse1(paste("1L", SUPER_RIGHT, "x")), quote(x <<- 1L)),
+        identical(parse1(paste0(LAMBDA, "(x) x")), quote(function(x) x)),
+        identical(parse1(paste0(FLORIN, "(x) x")), quote(function(x) x))
+    )
+
+    syntaxEnv <- new.env(parent = baseenv())
+    eval(parse1(paste("ordinary", LEFT, "1L")), syntaxEnv)
+    eval(parse1(paste("2L", RIGHT, "rightward")), syntaxEnv)
+    syntaxEnv$upLeft <- 0L
+    syntaxEnv$upRight <- 0L
+    eval(parse1(paste0("(", LAMBDA, "() { upLeft ",
+                       SUPER_LEFT, " 3L })()")), syntaxEnv)
+    eval(parse1(paste0("(", FLORIN, "() { 4L ",
+                       SUPER_RIGHT, " upRight })()")), syntaxEnv)
+    stopifnot(identical(syntaxEnv$ordinary, 1L),
+              identical(syntaxEnv$rightward, 2L),
+              identical(syntaxEnv$upLeft, 3L),
+              identical(syntaxEnv$upRight, 4L))
+
+    defaultLambda <- eval(parse1(paste0(LAMBDA, "(x = 6L) x")), syntaxEnv)
+    stopifnot(identical(defaultLambda(), 6L))
+
+    eval(parse1(paste0(TIMES, " ", LEFT, " ", LAMBDA,
+                       "(a, b) a * b")), syntaxEnv)
+    eval(parse1(paste0(COMPOSE, " ", LEFT, " ", LAMBDA,
+                       "(f, g) ", LAMBDA, "(x) f(g(x))")), syntaxEnv)
+    eval(parse1(paste0("inc ", LEFT, " ", LAMBDA, "(x) x + 1")),
+         syntaxEnv)
+    eval(parse1(paste0("square ", LEFT, " ", LAMBDA, "(x) x * x")),
+         syntaxEnv)
+
+    division <- parse1(paste("8", DIVIDE, "2"))
+    multiplication <- parse1(paste("3", TIMES, "5"))
+    composition <- parse1(paste0("(square ", COMPOSE, " inc)(2)"))
+    stopifnot(identical(eval(division, syntaxEnv), 4),
+              identical(eval(parse1(paste("9", DIVIDE, "2")),
+                             baseenv()), 4.5),
+              identical(typeof(get(DIVIDE, envir = baseenv())), "builtin"),
+              identical(eval(multiplication, syntaxEnv), 15),
+              identical(eval(composition, syntaxEnv), 9),
+              identical(deparse(division), paste("8", DIVIDE, "2")))
+
+    ## An operator follows every kind of completed expression.
+    completed <- c(paste("identity(8)", DIVIDE, "2"),
+                   paste("(8)", DIVIDE, "2"),
+                   paste("c(8)[1]", DIVIDE, "2"),
+                   paste("{ 8 }", DIVIDE, "2"))
+    stopifnot(vapply(completed,
+                     function(text) identical(eval(parse1(text), syntaxEnv), 4),
+                     logical(1)))
+
+    ## Ignored newlines and comments retain expression context, while a
+    ## returned newline begins a fresh expression where a glyph is a name.
+    multiline <- paste0("(8\n# between the operands\n", DIVIDE, " 2)")
+    stopifnot(identical(eval(parse1(multiline), syntaxEnv), 4))
+    separate <- parse(text = paste("1",
+        paste0(TIMES, " ", LEFT, " ", LAMBDA, "(a, b) a * b"),
+        paste("8", TIMES, "2"), sep = "\n"), keep.source = FALSE)
+    separateEnv <- new.env(parent = baseenv())
+    firstValue <- eval(separate[[1L]], separateEnv)
+    eval(separate[[2L]], separateEnv)
+    lastValue <- eval(separate[[3L]], separateEnv)
+    stopifnot(identical(firstValue, 1), identical(lastValue, 16))
+
+    ## Invalid UTF-8 must not be accepted as a mathematical operator.
+    bad <- tempfile()
+    writeBin(as.raw(c(charToRaw("8 "), 0xe2, 0x88,
+                      charToRaw(" 2\n"))), bad)
+    stopifnot(inherits(try(parse(file = bad, encoding = "UTF-8"),
+                            silent = TRUE), "try-error"))
+    unlink(bad)
+}
 #
 ##' Get value of `expr` and keep warning as attribute (if there is one)
 getVaW <- function(expr, obj=FALSE) {
