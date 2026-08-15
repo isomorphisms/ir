@@ -19,7 +19,6 @@ Do not copy that placeholder before a tested release supplies the path.
 At the R prompt, the quick check is:
 
 ```r
-÷ ← λ(a, b) a / b
 answer ← 8 ÷ 2
 answer = 4
 ```

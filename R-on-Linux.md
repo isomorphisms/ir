@@ -53,7 +53,6 @@ R_LIBS_USER="$HOME/.local/r-with-symbols-library" \
 Then try:
 
 ```r
-÷ ← λ(a, b) a / b
 answer ← 8 ÷ 2
 answer = 4
 ```

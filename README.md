@@ -1,61 +1,57 @@
-# R, with the symbols it means
+### fn λ → ÷ = ←
 
-Assignment points somewhere. Equality is equality. A function may begin with `fn` or λ. Mathematical operators may look mathematical.
+→ and ← can now be used for assignment, not just `<-` and `->`.
 
-This is a small change to R itself—not an RStudio plug-in and not a program that rewrites your files.
+`function(x) x**3` can now be written `fn(x) x**3`, `λ(x) x**3`, or `ƒ(x) x**3`.
 
-> [!IMPORTANT]
-> This is currently a **tested Linux source preview**. The Windows and macOS installers have not been built or tested yet. Their guides say so plainly; if you use either platform, the missing installer is not a problem on your computer.
+÷ means division.
 
-## Start with the one page that matches you
 
-| You use | Open this |
-|---|---|
-| RStudio on Windows | [RStudio on Windows](RStudio-on-Windows.md) |
-| RStudio on a Mac | [RStudio on a Mac](RStudio-on-Mac.md) |
-| R in the Mac Terminal | [R in the Mac Terminal](R-in-the-Mac-Terminal.md) |
-| Linux, with or without RStudio | [R on Linux](R-on-Linux.md) |
+Existing R spelling remains available: `<-`, `<<-`, `->`, `->>`, `==`, and `function` still work.
 
-You do not need to browse the source code. It is all inside [`code/`](code/) so these five pages can be the front door.
 
-## What it looks like
 
 ```r
-÷ ← fn(a, b) a / b
 answer ← 8 ÷ 2
 answer = 4
 ```
 
-The last line returns:
+The last line returns
 
 ```text
 [1] TRUE
 ```
 
-The example defines `÷` before using it. Mathematical glyphs are ordinary bindable operators here; the project does not secretly choose their meanings for you.
+because = now means equal.
 
-## What changed
 
-| You write | It means |
+
+
+
+| this | does |
 |---|---|
-| `name ← value` | assign to `name` |
-| `name ↞ value` | assign outside the current environment |
-| `value → name` | assign to `name` |
-| `value ↠ name` | assign outside the current environment |
+| `x ← 3` | assign |
+| `x ↞ 3` | assign in an enclosing frame |
+| `3 → x` | assign |
+| `3 ↠ x` | assign in an enclosing frame |
 | `left = right` | test equality |
 | `fn(x) expression`, `λ(x) expression`, or `ƒ(x) expression` | construct a function |
-| `left ÷ right`, after defining `÷` | call a mathematical infix operator |
+| `left ÷ right` | divide |
 
-Existing R spelling remains available: `<-`, `<<-`, `->`, `->>`, `==`, and `function` still work.
 
-Named arguments and function defaults also keep their familiar spelling:
+
+
+
+Parameters are still supplied with =.
 
 ```r
-mean(x, na.rm = TRUE)
-increment ← λ(amount = 1) amount + 1
+clean.mean ← λ(x) mean(x, na.rm = TRUE)
+
 ```
 
-`fn` is now a reserved word. Code that formerly used bare `fn` as a variable or argument name must choose another name; this source tree uses `fun`. In particular, this fork spells the objective-function argument as `optim(par, fun = ...)` rather than `optim(par, fn = ...)`.
+------
+
+*Actually this is worse than I thought it would be, I thought there would be no downsides....*
 
 That compatibility is contextual. Inside another call, wrap an equality comparison in parentheses so it cannot be read as an argument name:
 
@@ -65,12 +61,12 @@ stopifnot((answer = 4))
 
 Code that used a single `=` as assignment must use an arrow in this R. The comma and argument-label rules have otherwise been left alone.
 
+`fn` also used to be an ordinary name. It is reserved here, so old code using bare `fn` as a variable or argument must choose another name. This source uses `fun`; in particular, write `optim(par, fun = ...)` rather than `optim(par, fn = ...)`.
+
+
+------
+
+
 ## You do not have to give up ordinary R
 
 The tested Linux instructions install this build in its own folder and use a separate package library. They do not remove ordinary R, alter your projects, rewrite your scripts, or upload your work. Close this R and launch ordinary R as before whenever you want to switch back.
-
-Because this source is based on **R 4.7.0 Under development (unstable)**, treat it as an experimental R installation. Packages may need to be installed again for it; that does not remove the packages used by your ordinary R installation.
-
-Windows and Mac will get the same side-by-side promise only after their installers have actually passed platform testing. This repository will not call those installers ready before then.
-
-If you maintain or port the implementation, the patch order, parser invariants, and build checks live in [`code/PATCHING.md`](code/PATCHING.md).
