@@ -2002,7 +2002,7 @@ optimization settings.  There are four possible optimization levels:
 The syntactically special and core language functions are
 <<[[languageFuns]] definition>>=
 languageFuns <- c("^", "~", "<", "<<-", "<=", "<-", "=", "==", ">", ">=",
-                  "|", "||", "-", ":", "!", "!=", "/", "(", "[", "[<-", "[[",
+                  "|", "||", "-", ":", "!", "!=", "/", "÷", "(", "[", "[<-", "[[",
                   "[[<-", "{", "@", "$", "$<-", "*", "&", "&&", "%/%", "%*%",
                   "%%", "+",
                   "::", ":::", "@<-",
@@ -3178,6 +3178,9 @@ setInlineHandler("*", function(e, cb, cntxt)
     cmpPrim2(e, cb, MUL.OP, cntxt))
 
 setInlineHandler("/", function(e, cb, cntxt)
+    cmpPrim2(e, cb, DIV.OP, cntxt))
+
+setInlineHandler("÷", function(e, cb, cntxt)
     cmpPrim2(e, cb, DIV.OP, cntxt))
 @ %def
 
@@ -4980,7 +4983,7 @@ constantFoldCall <- function(e, cntxt) {
 
 The functions in the base package eligible for constant folding are
 <<[[foldFuns]] definition>>=
-foldFuns <- c("+", "-", "*", "/", "^", "(",
+foldFuns <- c("+", "-", "*", "/", "÷", "^", "(",
               ">", ">=", "==", "!=", "<", "<=", "||", "&&", "!",
               "|", "&", "%%",
               "c", "rep", ":",

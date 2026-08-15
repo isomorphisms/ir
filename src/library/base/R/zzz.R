@@ -196,7 +196,7 @@ assign("Tailcall", function(FUN, ...) NULL, envir = .ArgsEnv)
 
     ## ! is unary and handled below
     fx <- function(e1, e2) {}
-    for(f in c("+", "-", "*", "/", "^", "%%", "%/%", "&", "|",
+    for(f in c("+", "-", "*", "/", "÷", "^", "%%", "%/%", "&", "|",
                "==", "!=", "<", "<=", ">=", ">")) {
         body(fx) <- substitute(UseMethod(ff), list(ff=f))
         environment(fx) <- .BaseNamespaceEnv

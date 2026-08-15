@@ -817,11 +817,66 @@ HIDDEN INLINE_FUN Rboolean isValidStringF(SEXP x)
     return isValidString(x) && CHAR(STRING_ELT(x, 0))[0];
 }
 
+/* Unicode blocks whose characters are useful as mathematical infix
+   operators.  Keeping this independent of the current locale makes both
+   parsing and deparsing of UTF-8 source deterministic. */
+HIDDEN INLINE_FUN Rboolean isUnicodeOperatorCodepoint(unsigned int c)
+{
+    /* These four are assignment tokens, not user-definable infix names. */
+    if (c == 0x2190 || c == 0x219e || c == 0x2192 || c == 0x21a0)
+	return FALSE;
+
+    return c == 0x00ac || c == 0x00b1 || c == 0x00b7 ||
+	   c == 0x00d7 || c == 0x00f7 || c == 0x2022 ||
+	   c == 0x2044 || c == 0x2052 ||
+	   (c >= 0x2190 && c <= 0x22ff) ||
+	   (c >= 0x27c0 && c <= 0x27ef) ||
+	   (c >= 0x27f0 && c <= 0x27ff) ||
+	   (c >= 0x2900 && c <= 0x297f) ||
+	   (c >= 0x2980 && c <= 0x29ff) ||
+	   (c >= 0x2a00 && c <= 0x2aff) ||
+	   (c >= 0x2b00 && c <= 0x2bff);
+}
+
+/* Decode a name only when it is exactly one UTF-8 code point. */
+HIDDEN INLINE_FUN Rboolean isSingleUnicodeOperator(const char *str)
+{
+    const unsigned char *s = (const unsigned char *) str;
+    unsigned int c;
+    int i, n;
+
+    if (s[0] >= 0xc2 && s[0] <= 0xdf) {
+	n = 2;
+	c = s[0] & 0x1f;
+    } else if (s[0] >= 0xe0 && s[0] <= 0xef) {
+	n = 3;
+	c = s[0] & 0x0f;
+    } else if (s[0] >= 0xf0 && s[0] <= 0xf4) {
+	n = 4;
+	c = s[0] & 0x07;
+    } else
+	return FALSE;
+
+    for (i = 1; i < n; i++) {
+	if ((s[i] & 0xc0) != 0x80) return FALSE;
+	c = (c << 6) | (s[i] & 0x3f);
+    }
+    if (s[n] != '\0' ||
+	(n == 3 && c < 0x800) ||
+	(n == 4 && (c < 0x10000 || c > 0x10ffff)) ||
+	(c >= 0xd800 && c <= 0xdfff))
+	return FALSE;
+
+    return isUnicodeOperatorCodepoint(c);
+}
+
 HIDDEN INLINE_FUN Rboolean isUserBinop(SEXP s)
 {
     if (TYPEOF(s) == SYMSXP) {
 	const char *str = CHAR(PRINTNAME(s));
 	if (strlen(str) >= 2 && str[0] == '%' && str[strlen(str)-1] == '%')
+	    return TRUE;
+	if (isSingleUnicodeOperator(str))
 	    return TRUE;
     }
     return FALSE;

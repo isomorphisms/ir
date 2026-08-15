@@ -166,6 +166,7 @@ FUNTAB R_FunTab[] =
 {"-",		do_arith,	MINUSOP,1,	-1,	{PP_BINARY,  PREC_SUM,	  0}},
 {"*",		do_arith,	TIMESOP,1,	2,	{PP_BINARY,  PREC_PROD,	  0}},
 {"/",		do_arith,	DIVOP,	1,	2,	{PP_BINARY2, PREC_PROD,	  0}},
+{"÷",		do_arith,	DIVOP,	1,	2,	{PP_BINARY2, PREC_PROD,	  0}},
 {"^",		do_arith,	POWOP,	1,	2,	{PP_BINARY2, PREC_POWER,  1}},
 {"%%",		do_arith,	MODOP,	1,	2,	{PP_BINARY2, PREC_PERCENT,0}},
 {"%/%",		do_arith,	IDIVOP,	1,	2,	{PP_BINARY2, PREC_PERCENT,0}},
@@ -1050,7 +1051,7 @@ FUNTAB R_FunTab[] =
 static char *Spec_name[] = {
     "if", "while", "repeat", "for", "break", "next", "return", "function",
     "(", "{",
-    "+", "-", "*", "/", "^", "%%", "%/%", "%*%", ":", "::", ":::", "?", "|>",
+    "+", "-", "*", "/", "÷", "^", "%%", "%/%", "%*%", ":", "::", ":::", "?", "|>",
     "~", "@", "=>",
     "==", "!=", "<", ">", "<=", ">=",
     "&", "|", "&&", "||", "!",

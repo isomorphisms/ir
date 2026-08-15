@@ -499,7 +499,7 @@ constantFold <- function(e, cntxt, loc = NULL) {
     else checkConst(e)
 }
 
-foldFuns <- c("+", "-", "*", "/", "^", "(",
+foldFuns <- c("+", "-", "*", "/", "÷", "^", "(",
               ">", ">=", "==", "!=", "<", "<=", "||", "&&", "!",
               "|", "&", "%%",
               "c", "rep", ":",
@@ -513,7 +513,7 @@ foldFuns <- c("+", "-", "*", "/", "^", "(",
               "Arg", "Conj", "Im", "Mod", "Re")
 
 languageFuns <- c("^", "~", "<", "<<-", "<=", "<-", "=", "==", ">", ">=",
-                  "|", "||", "-", ":", "!", "!=", "/", "(", "[", "[<-", "[[",
+                  "|", "||", "-", ":", "!", "!=", "/", "÷", "(", "[", "[<-", "[[",
                   "[[<-", "{", "@", "$", "$<-", "*", "&", "&&", "%/%", "%*%",
                   "%%", "+",
                   "::", ":::", "@<-",
@@ -2145,6 +2145,9 @@ setInlineHandler("*", function(e, cb, cntxt)
     cmpPrim2(e, cb, MUL.OP, cntxt))
 
 setInlineHandler("/", function(e, cb, cntxt)
+    cmpPrim2(e, cb, DIV.OP, cntxt))
+
+setInlineHandler("÷", function(e, cb, cntxt)
     cmpPrim2(e, cb, DIV.OP, cntxt))
 
 setInlineHandler("^", function(e, cb, cntxt)

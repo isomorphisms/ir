@@ -1557,6 +1557,7 @@ static SEXP SrcRefsToVectorList(void) {
 #define CONTEXTSTACK_SIZE 50
 static int	SavedToken;
 static SEXP	SavedLval;
+static int	LastToken;
 static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
 
 static void PutSrcRefState(SrcRefState *state);
@@ -1693,6 +1694,7 @@ static void ParseInit(void)
     *contextp = ' ';
     SavedToken = 0;
     SavedLval = R_NilValue;
+    LastToken = 0;
     EatLines = 0;
     EndOfFile = 0;
     xxcharcount = 0;
@@ -3525,6 +3527,25 @@ static SEXP install_and_save_mbcs(const char *text, int c, int clen)
     return install(text ? text : yytext);
 }
 
+static bool token_can_end_expression(int tok)
+{
+    switch(tok) {
+    case SYMBOL:
+    case PLACEHOLDER:
+    case STR_CONST:
+    case NUM_CONST:
+    case NULL_CONST:
+    case NEXT:
+    case BREAK:
+    case ')':
+    case ']':
+    case RBRACE:
+	return true;
+    default:
+	return false;
+    }
+}
+
 
 /* Split the input stream into tokens. */
 /* This is the lowest of the parsing levels. */
@@ -3618,6 +3639,15 @@ static int token(void)
 	if (wc == 0x21a0) { /* ↠ is ->> */
 	    yylval = install_and_save_mbcs("<<-", c, clen);
 	    return RIGHT_ASSIGN;
+	}
+	if (isUnicodeOperatorCodepoint((unsigned int) wc)) {
+	    SEXP op = install_and_save_mbcs(NULL, c, clen);
+	    if (token_can_end_expression(LastToken)) {
+		yylval = op;
+		return SPECIAL;
+	    }
+	    PRESERVE_SV(yylval = op);
+	    return SYMBOL;
 	}
     } else
 	if (isalpha(c)) return SymbolValue(c);
@@ -3826,6 +3856,8 @@ static int token_(void){
 
     // get the token
     int res = token( ) ;
+    if (res != '\n')
+	LastToken = res;
 
     // capture the position after
     int _last_col  = ParseState.xxcolno ;
@@ -3929,11 +3961,13 @@ static int yylex(void)
 
 		    /* unrecord the pushed back token if not null */
 		    ParseState.data_count--;
+		LastToken = '\n';
 		return '\n';
 	    }
 	}
 	else {
 	    setlastloc();
+	    LastToken = '\n';
 	    return '\n';
 	}
     }
