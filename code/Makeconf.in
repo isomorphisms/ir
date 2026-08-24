@@ -6,6 +6,11 @@ abs_top_builddir = @abs_top_builddir@
 
 include $(top_srcdir)/share/make/vars.mk
 
+# IR's grammar and library sources contain Unicode syntax.  Build-time R
+# processes must inherit a UTF-8 locale rather than being forced to ASCII.
+# Callers can set IR_BUILD_LOCALE explicitly when LC_ALL is not suitable.
+IR_BUILD_LOCALE ?= $(LC_ALL)
+
 AR = @AR@
 ACLOCAL = @ACLOCAL@
 AUTOCONF = @AUTOCONF@

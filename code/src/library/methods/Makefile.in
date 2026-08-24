@@ -50,7 +50,7 @@ $(top_builddir)/library/$(pkg)/R/$(pkg).rdb: all.R  $(srcdir)/NAMESPACE \
 	  $(ECHO) "byte-compiling package '$(pkg)'"; \
 	fi
 	@$(ECHO) "invisible(loadNamespace(\"$(pkg)\"))" | \
-	  $(EXTRAS2) R_DEFAULT_PACKAGES=NULL LC_ALL=C $(R_EXE)
+	  $(EXTRAS2) R_DEFAULT_PACKAGES=NULL LC_ALL=$(IR_BUILD_LOCALE) $(R_EXE)
 	@$(INSTALL_DATA) $(top_srcdir)/share/R/nspackloader.R \
 	  $(top_builddir)/library/$(pkg)/R/$(pkg)
 
