@@ -53,7 +53,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 
 update-RGui:
 	@$(ECHO) "tools:::update_RGui_po(\"$(top_srcdir)\", mergeOpts=\"--no-wrap\")" | \
-	  R_DEFAULT_PACKAGES=NULL LC_ALL=C $(R_EXE)
+	  R_DEFAULT_PACKAGES=NULL LC_ALL=$(IR_BUILD_LOCALE) $(R_EXE)
 
 ## en@quot has to be done in a UTF-8 locale
 update-pkg-po:

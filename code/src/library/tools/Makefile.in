@@ -65,7 +65,7 @@ $(top_builddir)/library/$(pkg)/R/$(pkg).rdb: Makefile all.R $(top_srcdir)/share/
 	  $(ECHO) "makeLazyLoading(\"$(pkg)\")") | \
 	  _R_COMPILE_PKGS_=1 R_COMPILER_SUPPRESS_ALL=1 \
 	  R_SYSTEM_ABI='@R_SYSTEM_ABI@' \
-	  R_DEFAULT_PACKAGES=NULL LC_ALL=C $(R_EXE) > /dev/null
+	  R_DEFAULT_PACKAGES=NULL LC_ALL=$(IR_BUILD_LOCALE) $(R_EXE) > /dev/null
 
 Rsimple: mkR mkRsimple
 
@@ -74,6 +74,6 @@ Rlazy: mkR mkRsimple
 	@(cat $(srcdir)/R/makeLazyLoad.R; \
 	  $(ECHO) "makeLazyLoading(\"$(pkg)\")") | \
 	  R_SYSTEM_ABI='@R_SYSTEM_ABI@' \
-	  R_DEFAULT_PACKAGES=NULL LC_ALL=C $(R_EXE) > /dev/null
+	  R_DEFAULT_PACKAGES=NULL LC_ALL=$(IR_BUILD_LOCALE) $(R_EXE) > /dev/null
 
 Rlazycomp: mkR mkRsimple mklazycomp

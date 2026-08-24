@@ -30,6 +30,7 @@ Run these commands from the extracted repository folder:
 ```sh
 mkdir build
 cd build
+export LC_ALL=C.UTF-8
 sh ../code/configure \
   --prefix="$HOME/.local/r-with-symbols" \
   --with-x=no \
@@ -41,7 +42,7 @@ make install
 mkdir -p "$HOME/.local/r-with-symbols-library"
 ```
 
-The build can take a while and prints a great deal of routine compiler output. The important result is that both `make` and `make install` finish without an error.
+The explicit UTF-8 locale is required because this source tree contains the new symbol syntax. If your platform names its UTF-8 locale differently, set both `LC_ALL` and `IR_BUILD_LOCALE` to that name. The build can take a while and prints a great deal of routine compiler output. The important result is that both `make` and `make install` finish without an error.
 
 ## 4. Start it in the Terminal
 
