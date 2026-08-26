@@ -1,4 +1,4 @@
-### fn λ → ÷ = ←
+### fn λ → ÷ ≟ ←
 
 → and ← can now be used for assignment, not just `<-` and `->`.
 
@@ -13,7 +13,7 @@ Existing R spelling remains available: `<-`, `<<-`, `->`, `->>`, `==`, and `func
 
 ```r
 answer ← 8 ÷ 2
-answer = 4
+answer ≟ 4
 ```
 
 The last line returns
@@ -22,7 +22,7 @@ The last line returns
 [1] TRUE
 ```
 
-because = now means equal.
+because ≟ tests equality.
 
 
 
@@ -34,13 +34,13 @@ because = now means equal.
 | `x ↞ 3` | assign in an enclosing frame |
 | `3 → x` | assign |
 | `3 ↠ x` | assign in an enclosing frame |
-| `left = right` | test equality |
+| `left ≟ right` | test equality |
 | `fn(x) expression`, `λ(x) expression`, or `ƒ(x) expression` | construct a function |
 | `left ÷ right` | divide |
 
 
 
-
+Prefer `≟` for equality. `?=`, `=?`, `?=?`, `¿=?`, `=`, and `==` are aliases for the same test.
 
 Parameters are still supplied with =.
 
@@ -53,7 +53,7 @@ clean.mean ← λ(x) mean(x, na.rm = TRUE)
 
 *Actually this is worse than I thought it would be, I thought there would be no downsides....*
 
-That compatibility is contextual. Inside another call, wrap an equality comparison in parentheses so it cannot be read as an argument name:
+Only the `=` equality alias is contextual. Inside another call, wrap an equality comparison written with `=` in parentheses so it cannot be read as an argument name:
 
 ```r
 stopifnot((answer = 4))
