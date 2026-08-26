@@ -39,8 +39,14 @@ if (!UTF8) {
         identical(GENERIC, "⊗")
     )
 
-    ## Unicode letters remain ordinary names.
+    ## U+03C0 is not merely displayed as π here: make π a real function name
+    ## in parsed source and call it, so the code point, printed glyph and lexer
+    ## all have to agree.
+    syntaxEnv <- new.env(parent = baseenv())
     stopifnot(identical(parse1(PI), as.name("π")))
+    eval(parse1(paste0(PI, " ", LEFT, " ", LAMBDA, "(x) x + 1")),
+         syntaxEnv)
+    stopifnot(identical(eval(parse1(paste0(PI, "(2)")), syntaxEnv), 3))
 
     ## Reserved glyphs must be eaten by their explicit syntax before the
     ## generic Unicode infix fallback gets a chance to classify them.
@@ -59,7 +65,6 @@ if (!UTF8) {
     ## Unreserved glyphs still use the broad generic infix path.  Define one
     ## as an ordinary function, then prove the same glyph parses and evaluates
     ## infix rather than being rejected merely because it is Unicode.
-    syntaxEnv <- new.env(parent = baseenv())
     eval(parse1(paste0(GENERIC, " ", LEFT, " ", LAMBDA,
                        "(a, b) a + b")), syntaxEnv)
     genericCall <- parse1(paste("2", GENERIC, "3"))
