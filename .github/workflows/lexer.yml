@@ -1,0 +1,48 @@
+name: Unicode lexer
+
+on:
+  push:
+    branches:
+      - equality-glyph-aliases
+  pull_request:
+    paths:
+      - code/src/main/gram.c
+      - code/src/main/gram.y
+      - code/src/include/Rinlinedfuns.h
+      - code/tests/reg-encodings.R
+      - code/tests/ir-unicode-lexer.R
+      - .github/workflows/lexer.yml
+
+jobs:
+  lexer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      LC_ALL: C.UTF-8
+      IR_BUILD_LOCALE: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential gfortran perl pkg-config texinfo \
+            libreadline-dev libpcre2-dev libcurl4-openssl-dev \
+            libbz2-dev liblzma-dev zlib1g-dev libdeflate-dev
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          sh ../code/configure \
+            --with-x=no \
+            --without-tcltk \
+            --without-recommended-packages \
+            --disable-java
+
+      - name: Build
+        run: make -C build -j2
+
+      - name: Test Unicode lexer priority
+        run: build/bin/R --vanilla < code/tests/ir-unicode-lexer.R
