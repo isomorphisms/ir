@@ -1,0 +1,43 @@
+name: Publish ARMv7 Termux prerelease
+
+on:
+  push:
+    branches:
+      - armv7-termux-binary
+    paths:
+      - '.github/workflows/publish-armv7-termux.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download the accepted ARMv7 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir dist
+          gh run download 32926367948 \
+            --repo isomorphisms/ir \
+            --name ir-termux-armv7-84564b69c1bcad789f0f3be686660c226071e184 \
+            --dir dist
+
+      - name: Publish the exact tested commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create ir-4.7.0-devel-armv7.1 \
+            dist/ir_4.7.0~devel+git84564b69c1bc_arm.deb \
+            dist/SHA256SUMS \
+            dist/build-record.txt \
+            dist/build-environment-packages.txt \
+            --repo isomorphisms/ir \
+            --target 84564b69c1bcad789f0f3be686660c226071e184 \
+            --prerelease \
+            --title 'ir 4.7.0 development — ARMv7 Termux' \
+            --notes $'Native 32-bit ARMv7 Android/Termux build from PR #2.\n\nThe package installs ir and irscript under an isolated runtime and does not replace ordinary R. CI verified Architecture: arm, ELF32/ARM, and execution of the Unicode expression x ← 8 ÷ 2.\n\nPackage SHA-256: 36874b459e15ae781789ab4dba8834a50a97ee48970306424a71ff3ae3049de1\n\nActual-phone installation remains the final acceptance test.'
