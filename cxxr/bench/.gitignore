@@ -1,0 +1,9 @@
+/benchmarks/
+/rho/
+/out/
+/Rplots.pdf
+/report.pdf
+/tables.pdf
+/commits
+
+*.pyc
