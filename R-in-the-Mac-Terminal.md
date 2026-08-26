@@ -20,7 +20,7 @@ At the R prompt, the quick check is:
 
 ```r
 answer ← 8 ÷ 2
-answer = 4
+answer ≟ 4
 ```
 
 The last line should print `TRUE`.

@@ -22,10 +22,10 @@ After RStudio opens, verify the session in its Console:
 ```r
 R.home()
 one ← 1
-one = 1
+one ≟ 1
 ```
 
-The final expression should print `TRUE`. Posit documents the environment-variable selection method here: [Changing R versions for RStudio Desktop](https://support.posit.co/hc/en-us/articles/200486138-Changing-R-versions-for-the-RStudio-Desktop-IDE).
+The final expression should print `TRUE`. Posit documents the environment-variable selection method here: [Changing R versions for RStudio Desktop](https://support.posit.co/hc/en-us/articles/200486138-Changing-R-versions-for-RStudio-Desktop-IDE).
 
 ## Switching back
 

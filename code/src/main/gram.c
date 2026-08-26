@@ -5954,6 +5954,18 @@ static int token(void)
 	    yylval = install_and_save_mbcs("<<-", c, clen);
 	    return RIGHT_ASSIGN;
 	}
+	if (wc == 0x225f) { /* ≟ is == */
+	    yylval = install_and_save_mbcs("==", c, clen);
+	    return EQ;
+	}
+	if (wc == 0x00bf) { /* ¿=? is == */
+	    yylval = install_and_save_mbcs("==", c, clen);
+	    if (nextchar('=') && nextchar('?')) {
+		strcat(yytext, "=?");
+		return EQ;
+	    }
+	    return ERROR;
+	}
 	if (isUnicodeOperatorCodepoint((unsigned int) wc)) {
 	    SEXP op = install_and_save_mbcs(NULL, c, clen);
 	    if (token_can_end_expression(LastToken)) {
@@ -6018,6 +6030,10 @@ static int token(void)
     case '=':
 	if (nextchar('=')) {
 	    yylval = install_and_save("==");
+	    return EQ;
+	}
+	else if (nextchar('?')) {
+	    yylval = install_and_save2("==", "=?");
 	    return EQ;
 	}
 	else if (nextchar('>')) {
@@ -6087,6 +6103,13 @@ static int token(void)
         strcpy(yytext, "]");
 	return c;
     case '?':
+	if (nextchar('=')) {
+	    if (nextchar('?'))
+		yylval = install_and_save2("==", "?=?");
+	    else
+		yylval = install_and_save2("==", "?=");
+	    return EQ;
+	}
 	yylval = install_and_save("?");
 	return c;
     case '*':
