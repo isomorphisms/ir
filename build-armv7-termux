@@ -6,6 +6,7 @@ readonly TUR_REVISION=4c751a5f7a05d62acd0f1d64aa6dd7fa17a79539
 readonly TUR_REPOSITORY=https://github.com/termux-user-repository/tur.git
 readonly TERMUX_PACKAGES_REVISION=13391c04904a245c9bdbbbc2c02a3756cae47113
 readonly TERMUX_PACKAGES_REPOSITORY=https://github.com/termux/termux-packages.git
+readonly container_repository_root=/data/data/com.termux/files/home/termux-packages
 
 die() {
   printf 'build-armv7-termux: %s\n' "$*" >&2
@@ -128,7 +129,7 @@ mapfile -t packages < <(find tur/output tur-on-device/output output \
   -maxdepth 1 -type f -name 'ir_*.deb' -print 2>/dev/null | sort)
 test "${#packages[@]}" = 1 || die "expected exactly one ir .deb; found ${#packages[@]}"
 readonly package_path="${packages[0]}"
-readonly package_in_container="/home/builder/termux-packages/$package_path"
+readonly package_in_container="$container_repository_root/$package_path"
 
 ./common-files/build-termux-docker.sh login bash -lc "
   set -euo pipefail
@@ -145,7 +146,7 @@ readonly package_in_container="/home/builder/termux-packages/$package_path"
   readelf -h \"\$runtime\" | grep -Eq 'Machine:[[:space:]]+ARM'
   ir --vanilla --slave -e 'x ← 8 ÷ 2; stopifnot((x = 4)); cat(\"ir-armv7-ok\\n\")'
   dpkg-query -W -f='\${Package}=\${Version}\\n' | sort > \
-    /home/builder/termux-packages/build-environment-packages.txt
+    '$container_repository_root/build-environment-packages.txt'
 "
 
 artifact_root="${IR_TERMUX_ARTIFACT_DIR:-$repository_root/artifacts/termux-armv7}"
