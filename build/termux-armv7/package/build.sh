@@ -32,6 +32,9 @@ termux_step_pre_configure() {
 
 	CFLAGS="${CFLAGS/-Oz/-O0}"
 	CXXFLAGS="${CXXFLAGS/-Oz/-O0}"
+	# Android's 32-bit wchar_t stores Unicode code points, but bionic does not
+	# advertise that with the ISO 10646 feature macro expected by R.
+	CPPFLAGS+=" -D__STDC_ISO_10646__=201706L"
 	LDFLAGS="${LDFLAGS/-static-openmp/}"
 	LDFLAGS+=" -landroid-glob"
 	export LANG=C.UTF-8
