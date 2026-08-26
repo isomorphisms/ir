@@ -11,6 +11,7 @@ on:
       - code/src/include/Rinlinedfuns.h
       - code/tests/reg-encodings.R
       - code/tests/ir-unicode-lexer.R
+      - code/tests/ir-package-compat.R
       - .github/workflows/lexer.yml
 
 jobs:
@@ -46,3 +47,14 @@ jobs:
 
       - name: Test Unicode lexer priority
         run: build/bin/R --vanilla < code/tests/ir-unicode-lexer.R
+
+      - name: Install package compatibility oracle
+        run: |
+          mkdir -p build/compat-lib
+          IR_COMPAT_LIB="$PWD/build/compat-lib" \
+            build/bin/Rscript -e 'install.packages(c("rlang", "testthat", "tibble", "dplyr"), lib = Sys.getenv("IR_COMPAT_LIB"), repos = "https://cloud.r-project.org", type = "source", Ncpus = 2L)'
+
+      - name: Test unmodified-package compatibility
+        env:
+          IR_COMPAT_LIB: ${{ github.workspace }}/build/compat-lib
+        run: build/bin/R --vanilla < code/tests/ir-package-compat.R
