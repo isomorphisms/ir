@@ -70,3 +70,18 @@ Code that used a single `=` as assignment must use an arrow in this R. The comma
 ## You do not have to give up ordinary R
 
 The tested Linux instructions install this build in its own folder and use a separate package library. They do not remove ordinary R, alter your projects, rewrite your scripts, or upload your work. Close this R and launch ordinary R as before whenever you want to switch back.
+
+
+## ARMv7 Android / Termux
+
+The `ARMv7 Termux binary` workflow builds an installable 32-bit `arm` package.
+Download its `ir_*.deb` artifact and install it in Termux:
+
+```sh
+apt install ./ir_*.deb
+ir
+```
+
+The package installs `ir` and `irscript` with a private runtime. It does not
+replace the ordinary `R` or `Rscript` commands. The exact reproducible entry
+point is [`build-armv7-termux`](build-armv7-termux).

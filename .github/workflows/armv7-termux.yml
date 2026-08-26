@@ -1,0 +1,54 @@
+name: ARMv7 Termux binary
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/armv7-termux.yml'
+      - 'build-armv7-termux'
+      - 'build/termux-armv7/**'
+      - 'code/**'
+  push:
+    branches:
+      - trunk
+    paths:
+      - '.github/workflows/armv7-termux.yml'
+      - 'build-armv7-termux'
+      - 'build/termux-armv7/**'
+      - 'code/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: armv7-termux-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 360
+
+    steps:
+      - name: Check out the exact source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Build and execute the ARMv7 Termux package
+        env:
+          IR_TERMUX_ARTIFACT_DIR: ${{ runner.temp }}/ir-armv7-artifacts
+          IR_TERMUX_FREE_DISK: 1
+        run: ./build-armv7-termux
+
+      - name: Show the acceptance record
+        run: cat "${{ runner.temp }}/ir-armv7-artifacts/build-record.txt"
+
+      - name: Upload the installable package and provenance
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ir-termux-armv7-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/ir-armv7-artifacts/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
