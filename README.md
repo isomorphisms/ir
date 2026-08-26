@@ -1,8 +1,8 @@
-### fn λ → ÷ ≟ ←
+### λ ƒ → ÷ ≟ ←
 
 → and ← can now be used for assignment, not just `<-` and `->`.
 
-`function(x) x**3` can now be written `fn(x) x**3`, `λ(x) x**3`, or `ƒ(x) x**3`.
+`function(x) x**3` can now be written `λ(x) x**3` or `ƒ(x) x**3`.
 
 ÷ means division.
 
@@ -35,7 +35,7 @@ because ≟ tests equality.
 | `3 → x` | assign |
 | `3 ↠ x` | assign in an enclosing frame |
 | `left ≟ right` | test equality |
-| `fn(x) expression`, `λ(x) expression`, or `ƒ(x) expression` | construct a function |
+| `λ(x) expression` or `ƒ(x) expression` | construct a function |
 | `left ÷ right` | divide |
 
 
@@ -61,7 +61,7 @@ stopifnot((answer = 4))
 
 Code that used a single `=` as assignment must use an arrow in this R. The comma and argument-label rules have otherwise been left alone.
 
-`fn` also used to be an ordinary name. It is reserved here, so old code using bare `fn` as a variable or argument must choose another name. This source uses `fun`; in particular, write `optim(par, fun = ...)` rather than `optim(par, fn = ...)`.
+`fn` is an ordinary identifier, as in standard R. Code using `fn` as a variable, formal argument, or named argument does not need to change; for example, `optim(par, fn = ...)` remains valid. `fn(...)` is an ordinary call to a function named `fn`, not function-constructor syntax.
 
 
 ------
