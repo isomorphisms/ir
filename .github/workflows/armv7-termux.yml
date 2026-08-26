@@ -39,6 +39,7 @@ jobs:
         env:
           IR_TERMUX_ARTIFACT_DIR: ${{ runner.temp }}/ir-armv7-artifacts
           IR_TERMUX_FREE_DISK: 1
+          IR_TERMUX_KEEP_WORK: 1
         run: ./build-armv7-termux
 
       - name: Show the acceptance record
