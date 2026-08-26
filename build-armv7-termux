@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly TUR_REVISION=4c751a5f7a05d62acd0f1d64aa6dd7fa17a79539
+readonly TUR_REPOSITORY=https://github.com/termux-user-repository/tur.git
+readonly TERMUX_PACKAGES_REVISION=13391c04904a245c9bdbbbc2c02a3756cae47113
+readonly TERMUX_PACKAGES_REPOSITORY=https://github.com/termux/termux-packages.git
+readonly container_repository_root=/data/data/com.termux/files/home/termux-packages
+
+die() {
+  printf 'build-armv7-termux: %s\n' "$*" >&2
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"
+}
+
+readonly repository_root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+readonly source_root="$repository_root/code"
+readonly recipe_root="$repository_root/build/termux-armv7/package"
+
+test -f "$source_root/VERSION" || die "run this file from a complete ir checkout containing code/VERSION"
+test -f "$recipe_root/build.sh" || die "Termux package recipe is missing"
+
+case "$(uname -m)" in
+  aarch64|arm64)
+    ;;
+  *)
+    die "the native ARMv7 build requires an ARM64 Linux host; use the ARMv7 Termux GitHub workflow"
+    ;;
+esac
+
+require_command docker
+require_command dpkg-deb
+require_command git
+require_command sed
+require_command sha256sum
+
+source_revision="$(git -C "$repository_root" rev-parse HEAD)"
+case "$source_revision" in
+  *[!0-9a-f]*|'') die "could not determine an immutable ir source revision" ;;
+esac
+
+upstream_version="$(sed -n '1s/ .*//p' "$source_root/VERSION")"
+case "$upstream_version" in
+  [0-9]*.[0-9]*.[0-9]*) ;;
+  *) die "unexpected code/VERSION value: $upstream_version" ;;
+esac
+readonly source_revision upstream_version
+readonly package_version="${upstream_version}~devel+git${source_revision:0:12}"
+
+work_root="${IR_TERMUX_WORK_DIR:-}"
+remove_work_root=false
+if test -z "$work_root"; then
+  work_root="$(mktemp -d "${TMPDIR:-/tmp}/ir-termux-armv7.XXXXXX")"
+  remove_work_root=true
+else
+  mkdir -p "$work_root"
+  work_root="$(CDPATH= cd -- "$work_root" && pwd)"
+fi
+readonly work_root
+
+cleanup() {
+  if $remove_work_root && test "${IR_TERMUX_KEEP_WORK:-0}" != 1; then
+    rm -rf -- "$work_root"
+  else
+    printf 'kept build directory: %s\n' "$work_root"
+  fi
+}
+trap cleanup EXIT
+
+readonly termux_packages="$work_root/termux-packages"
+test ! -e "$termux_packages" || die "build directory is not empty: $termux_packages"
+
+git clone --filter=blob:none --no-checkout --depth=1 \
+  "$TUR_REPOSITORY" "$termux_packages"
+git -C "$termux_packages" fetch --depth=1 origin "$TUR_REVISION"
+git -C "$termux_packages" checkout --detach "$TUR_REVISION"
+test "$(git -C "$termux_packages" rev-parse HEAD)" = "$TUR_REVISION" || die "TUR revision mismatch"
+
+git clone --filter=blob:none --no-checkout --depth=1 \
+  "$TERMUX_PACKAGES_REPOSITORY" "$termux_packages/termux-packages"
+git -C "$termux_packages/termux-packages" fetch --depth=1 origin \
+  "$TERMUX_PACKAGES_REVISION"
+git -C "$termux_packages/termux-packages" checkout --detach \
+  "$TERMUX_PACKAGES_REVISION"
+test "$(git -C "$termux_packages/termux-packages" rev-parse HEAD)" = \
+  "$TERMUX_PACKAGES_REVISION" || die "termux-packages revision mismatch"
+
+# TUR's setup normally advances an existing termux-packages checkout. Keep
+# this build on the reviewed revision above.
+sed -i \
+  -e "s/git reset --hard origin\/master/git reset --hard $TERMUX_PACKAGES_REVISION/" \
+  -e '/git pull --rebase/d' \
+  "$termux_packages/setup-environment.sh"
+grep -q "git reset --hard $TERMUX_PACKAGES_REVISION" \
+  "$termux_packages/setup-environment.sh" || die "could not pin termux-packages setup"
+
+mkdir -p "$termux_packages/sources/ir"
+cp -a "$source_root/." "$termux_packages/sources/ir/"
+cp -a "$recipe_root" "$termux_packages/tur-on-device/ir"
+sed -i "s/@IR_PACKAGE_VERSION@/$package_version/g" \
+  "$termux_packages/tur-on-device/ir/build.sh"
+if grep -q '@IR_PACKAGE_VERSION@' "$termux_packages/tur-on-device/ir/build.sh"; then
+  die "package-version substitution failed"
+fi
+
+cd "$termux_packages"
+./setup-environment.sh
+
+export ARCH=arm
+./common-files/build-termux-docker.sh true
+if test "${IR_TERMUX_FREE_DISK:-0}" = 1; then
+  ./scripts/free-space.sh
+fi
+./common-files/build-termux-docker.sh login ./scripts/setup-termux.sh
+
+if command -v sudo >/dev/null 2>&1; then
+  sudo chown -R 1000:1000 "$termux_packages"
+elif test "$(id -u)" = 0; then
+  chown -R 1000:1000 "$termux_packages"
+fi
+
+./common-files/build-termux-docker.sh login ./build-package.sh -I ir
+
+mapfile -t packages < <(find tur/output tur-on-device/output output \
+  -maxdepth 1 -type f -name 'ir_*.deb' -print 2>/dev/null | sort)
+test "${#packages[@]}" = 1 || die "expected exactly one ir .deb; found ${#packages[@]}"
+readonly package_path="${packages[0]}"
+readonly package_in_container="$container_repository_root/$package_path"
+
+./common-files/build-termux-docker.sh login -lc "
+  set -euo pipefail
+  test \"\$(dpkg --print-architecture)\" = arm
+  test \"\$(dpkg-deb --field '$package_in_container' Architecture)\" = arm
+  dpkg -i '$package_in_container'
+  test -x \"\$PREFIX/bin/ir\"
+  test -x \"\$PREFIX/bin/irscript\"
+  test ! -e \"\$PREFIX/bin/R\"
+  test ! -e \"\$PREFIX/bin/Rscript\"
+  runtime=\"\$PREFIX/lib/ir/R/bin/exec/R\"
+  test -x \"\$runtime\"
+  readelf -h \"\$runtime\" | grep -Eq 'Class:[[:space:]]+ELF32'
+  readelf -h \"\$runtime\" | grep -Eq 'Machine:[[:space:]]+ARM'
+  ir --vanilla --slave -e 'x ← 8 ÷ 2; stopifnot((x = 4)); cat(\"ir-armv7-ok\\n\")'
+  dpkg-query -W -f='\${Package}=\${Version}\\n' | sort > \
+    '$container_repository_root/build-environment-packages.txt'
+"
+
+artifact_root="${IR_TERMUX_ARTIFACT_DIR:-$repository_root/artifacts/termux-armv7}"
+mkdir -p "$artifact_root"
+artifact_root="$(CDPATH= cd -- "$artifact_root" && pwd)"
+cp "$package_path" "$artifact_root/"
+cp build-environment-packages.txt "$artifact_root/"
+readonly artifact_path="$artifact_root/$(basename -- "$package_path")"
+
+(
+  cd "$artifact_root"
+  sha256sum "$(basename -- "$artifact_path")" > SHA256SUMS
+)
+
+{
+  printf 'ir-source=%s\n' "$source_revision"
+  printf 'ir-version=%s\n' "$upstream_version"
+  printf 'package-version=%s\n' "$package_version"
+  printf 'tur-source=%s\n' "$TUR_REVISION"
+  printf 'termux-packages-source=%s\n' "$TERMUX_PACKAGES_REVISION"
+  printf 'architecture=%s\n' "$(dpkg-deb --field "$artifact_path" Architecture)"
+  printf 'package=%s\n' "$(basename -- "$artifact_path")"
+  printf 'sha256=%s\n' "$(sha256sum "$artifact_path" | cut -d ' ' -f 1)"
+  printf 'container-acceptance=%s\n' ir-armv7-ok
+} > "$artifact_root/build-record.txt"
+
+printf 'ARMv7 Termux package: %s\n' "$artifact_path"
+printf 'Checksum: %s\n' "$artifact_root/SHA256SUMS"
