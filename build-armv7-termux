@@ -131,7 +131,7 @@ test "${#packages[@]}" = 1 || die "expected exactly one ir .deb; found ${#packag
 readonly package_path="${packages[0]}"
 readonly package_in_container="$container_repository_root/$package_path"
 
-./common-files/build-termux-docker.sh login bash -lc "
+./common-files/build-termux-docker.sh login -lc "
   set -euo pipefail
   test \"\$(dpkg --print-architecture)\" = arm
   test \"\$(dpkg-deb --field '$package_in_container' Architecture)\" = arm
