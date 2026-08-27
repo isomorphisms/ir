@@ -171,6 +171,9 @@ walk <- function(expr, expression_number, path = "root") {
   }
 
   for (i in seq_along(expr)) {
+    if (identical(expr[[i]], quote(expr = ))) {
+      next
+    }
     child <- expr[[i]]
     if (is.call(child) || is.pairlist(child) || is.expression(child)) {
       walk(child, expression_number, paste0(path, "/", i))
