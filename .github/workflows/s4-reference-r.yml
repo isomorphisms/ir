@@ -24,7 +24,9 @@ jobs:
           use-public-rspm: true
 
       - name: Run the exact reference-R compliance gate
-        run: Rscript 'Great S4 massacre/tests/run_compliance.R' | tee s4-compliance.log
+        run: |
+          set -o pipefail
+          Rscript 'Great S4 massacre/tests/run_compliance.R' | tee s4-compliance.log
 
       - name: Scan the reference fixture
         if: ${{ always() }}
