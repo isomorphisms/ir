@@ -2,8 +2,12 @@ full_args <- commandArgs(trailingOnly = FALSE)
 file_arg <- grep("^--file=", full_args, value = TRUE)
 
 if (length(file_arg) == 1L) {
-  script_path <- normalizePath(sub("^--file=", "", file_arg), mustWork = TRUE)
-  massacre_root <- dirname(dirname(script_path))
+  script_path <- sub("^--file=", "", file_arg)
+  if (file.exists(script_path)) {
+    massacre_root <- dirname(dirname(normalizePath(script_path, mustWork = TRUE)))
+  } else {
+    massacre_root <- normalizePath("Great S4 massacre", mustWork = TRUE)
+  }
 } else {
   massacre_root <- normalizePath("Great S4 massacre", mustWork = TRUE)
 }
