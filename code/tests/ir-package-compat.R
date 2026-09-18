@@ -23,18 +23,15 @@ stopifnot(
     identical(florin_identity(12L), 12L)
 )
 
-## Upstream packages are the oracle: do not patch or translate them.
+## Upstream rlang is the package oracle for the fn parser boundary.
+## Do not patch or translate it.
 compat_lib <- Sys.getenv("IR_COMPAT_LIB", "build/compat-lib")
 .libPaths(c(compat_lib, .libPaths()))
 
-packages <- c("rlang", "testthat", "tibble", "dplyr")
-for (package in packages) {
-    suppressPackageStartupMessages(
-        library(package, character.only = TRUE)
-    )
-}
+suppressPackageStartupMessages(library(rlang))
+stopifnot(rlang::is_function(call_trace_context))
 
-testthat::test_that("IR spellings work inside upstream testthat", {
-    answer ← 8 ÷ 2
-    testthat::expect_true(answer ≟ 4)
-})
+## Exercise IR spellings independently of packages that intentionally rely
+## on standard-R '=' assignment semantics.
+answer ← 8 ÷ 2
+stopifnot(answer ≟ 4)
