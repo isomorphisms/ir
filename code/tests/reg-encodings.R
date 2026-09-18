@@ -31,6 +31,10 @@ stopifnot(
     identical(eval(parse1("1 = 2")), FALSE),
     isTRUE(eval(parse1("1 + 1 = 2"))),
     isTRUE(eval(parse1("1 == 1"))),
+    identical(parse1("1 ?= 1"), quote(1 == 1)),
+    identical(parse1("1 =? 1"), quote(1 == 1)),
+    identical(parse1("1 ?=? 1"), quote(1 == 1)),
+    isTRUE(eval(parse1("1 + 1 ?= 2"))),
     inherits(try(parse(text = "1 = 1 = TRUE"), silent = TRUE),
              "try-error")
 )
@@ -55,6 +59,8 @@ if (UTF8) {
     DIVIDE      <- intToUtf8(0x00f7)
     TIMES       <- intToUtf8(0x00d7)
     COMPOSE     <- intToUtf8(0x2218)
+    EQUALITY    <- intToUtf8(0x225f)
+    INVERTED_Q  <- intToUtf8(0x00bf)
 
     stopifnot(
         identical(parse1(paste("x", LEFT, "1L")), quote(x <- 1L)),
@@ -63,6 +69,13 @@ if (UTF8) {
         identical(parse1(paste("1L", SUPER_RIGHT, "x")), quote(x <<- 1L)),
         identical(parse1(paste0(LAMBDA, "(x) x")), quote(function(x) x)),
         identical(parse1(paste0(FLORIN, "(x) x")), quote(function(x) x))
+    )
+
+    stopifnot(
+        identical(parse1(paste("1", EQUALITY, "1")), quote(1 == 1)),
+        isTRUE(eval(parse1(paste("1 + 1", EQUALITY, "2")))),
+        identical(parse1(paste0("1 ", INVERTED_Q, "=? 1")), quote(1 == 1)),
+        isTRUE(eval(parse1(paste0("1 ", INVERTED_Q, "=? 1"))))
     )
 
     syntaxEnv <- new.env(parent = baseenv())

@@ -55,7 +55,7 @@ Then try:
 
 ```r
 answer ← 8 ÷ 2
-answer = 4
+answer ≟ 4
 ```
 
 The final line should print:
@@ -76,7 +76,7 @@ RSTUDIO_WHICH_R="$HOME/.local/r-with-symbols/bin/R" \
   rstudio
 ```
 
-In RStudio's Console, run `R.home()` and confirm that it begins with your `.local/r-with-symbols` folder. Posit documents `RSTUDIO_WHICH_R` as its Linux version-selection override: [Changing R versions for RStudio Desktop](https://support.posit.co/hc/en-us/articles/200486138-Changing-R-versions-for-the-RStudio-Desktop-IDE).
+In RStudio's Console, run `R.home()` and confirm that it begins with your `.local/r-with-symbols` folder. Posit documents `RSTUDIO_WHICH_R` as its Linux version-selection override: [Changing R versions for RStudio Desktop](https://support.posit.co/hc/en-us/articles/200486138-Changing-R-versions-for-RStudio-Desktop-IDE).
 
 RStudio was not installed in the build environment used for this project, so the RStudio handoff follows Posit's documented mechanism but has not yet been exercised here. The R build itself and its regression tests were exercised.
 

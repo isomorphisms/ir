@@ -19,14 +19,14 @@ RStudio supports side-by-side R installations on Windows. After installing the t
 3. Next to **R version**, select **Change**.
 4. Choose the separately installed build described by this page, then restart RStudio.
 
-You can also hold **Ctrl** while RStudio starts to open its R-version chooser. These are Posit's documented Windows controls: [Changing R versions for RStudio Desktop](https://support.posit.co/hc/en-us/articles/200486138-Changing-R-versions-for-the-RStudio-Desktop-IDE).
+You can also hold **Ctrl** while RStudio starts to open its R-version chooser. These are Posit's documented Windows controls: [Changing R versions for RStudio Desktop](https://support.posit.co/hc/en-us/articles/200486138-Changing-R-versions-for-RStudio-Desktop-IDE).
 
 In the Console, check the result:
 
 ```r
 R.version.string
 one ← 1
-one = 1
+one ≟ 1
 ```
 
 The final expression should print `TRUE`.
