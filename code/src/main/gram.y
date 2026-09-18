@@ -2179,7 +2179,6 @@ static keywords[] = {
     { "NA_character_", NUM_CONST  },
     { "NA_complex_", NUM_CONST  },
     { "function",   FUNCTION   },
-    { "fn",         FUNCTION   },
     { "λ",          FUNCTION   },
     { "ƒ",          FUNCTION   },
     { "while",	    WHILE      },

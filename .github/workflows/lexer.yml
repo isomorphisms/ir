@@ -11,6 +11,7 @@ on:
       - code/src/include/Rinlinedfuns.h
       - code/tests/reg-encodings.R
       - code/tests/ir-unicode-lexer.R
+      - code/tests/ir-package-compat.R
       - .github/workflows/lexer.yml
 
 jobs:
@@ -29,7 +30,25 @@ jobs:
           sudo apt-get install -y \
             build-essential gfortran perl pkg-config texinfo \
             libreadline-dev libpcre2-dev libcurl4-openssl-dev \
-            libbz2-dev liblzma-dev zlib1g-dev libdeflate-dev
+            libbz2-dev liblzma-dev zlib1g-dev libdeflate-dev \
+            libuv1-dev
+
+      - name: Verify libuv development interface
+        run: |
+          cat > /tmp/ir-libuv-probe.c <<'EOF'
+          #include <uv.h>
+
+          int main(void)
+          {
+              return uv_version() == 0;
+          }
+          EOF
+          cc \
+            $(pkg-config --cflags libuv) \
+            /tmp/ir-libuv-probe.c \
+            $(pkg-config --libs libuv) \
+            -o /tmp/ir-libuv-probe
+          /tmp/ir-libuv-probe
 
       - name: Configure
         run: |
@@ -46,3 +65,14 @@ jobs:
 
       - name: Test Unicode lexer priority
         run: build/bin/R --vanilla < code/tests/ir-unicode-lexer.R
+
+      - name: Install rlang compatibility oracle
+        run: |
+          mkdir -p build/compat-lib
+          IR_COMPAT_LIB="$PWD/build/compat-lib" \
+            build/bin/Rscript -e 'install.packages("rlang", lib = Sys.getenv("IR_COMPAT_LIB"), repos = "https://cloud.r-project.org", type = "source")'
+
+      - name: Test bare fn package compatibility
+        env:
+          IR_COMPAT_LIB: ${{ github.workspace }}/build/compat-lib
+        run: build/bin/R --vanilla < code/tests/ir-package-compat.R
