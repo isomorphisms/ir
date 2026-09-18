@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-readonly TUR_REVISION=4c751a5f7a05d62acd0f1d64aa6dd7fa17a79539
+readonly TUR_REVISION=8628987ace98eed5de2e8933ffe4afae806ae678
 readonly TUR_REPOSITORY=https://github.com/termux-user-repository/tur.git
-readonly TERMUX_PACKAGES_REVISION=13391c04904a245c9bdbbbc2c02a3756cae47113
+readonly TERMUX_PACKAGES_REVISION=524c37dbece3d039dc366ba73312da809e4fff6e
 readonly TERMUX_PACKAGES_REPOSITORY=https://github.com/termux/termux-packages.git
 readonly container_repository_root=/data/data/com.termux/files/home/termux-packages
 
