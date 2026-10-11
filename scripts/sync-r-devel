@@ -125,8 +125,14 @@ test -z "$(git diff --cached --name-only | grep -v '^code/' || :)" ||
     die 'unexpected changes outside code/'
 grep -Fxq "Revision: $R_DEVEL_REV" code/SVNINFO ||
     die 'SVN revision receipt missing'
-git -c core.whitespace=cr-at-eol diff --cached --check ||
-    die 'resulting source diff whitespace errors'
+# The previous whitespace check audits IR's delta relative to R-devel.
+# Do not treat historical upstream whitespace in newly imported R files as
+# an IR regression. Instead prove exact byte-for-byte nested tree identity.
+ir_root_tree="$(git write-tree)"
+nested_source_tree="$(git rev-parse "$ir_root_tree:code")"
+accepted_source_tree="$(git -C "$work/source" write-tree)"
+test "$nested_source_tree" = "$accepted_source_tree" ||
+    die 'copied code/ tree differs from the validated source tree'
 git diff --cached --quiet && die 'expected source update, found no changes'
 
 printf '\nR source prepared: svn r%s / %s\n' "$R_DEVEL_REV" "$R_DEVEL_SHA"
