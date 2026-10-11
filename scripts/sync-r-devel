@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# Source-only: rebase IR's entire nested R tree on pinned R-devel.
+set -euo pipefail
+
+readonly IR_BASE_SHA=3da432e44c5ab99eef6da071183fa0ff315381f1
+readonly R_DEVEL_SHA=93ee4ba84357570bc20c0ae05442d08f3735a91e
+readonly R_DEVEL_REV=90659
+readonly R_MIRROR=https://github.com/wch/r-source.git
+readonly TARGET_BRANCH=sync-r-devel-r90659-20261010
+
+die() { printf 'R-devel refresh BLOCKED: %s\n' "$*" >&2; exit 1; }
+for cmd in git rsync bison python3 grep sed mktemp cmp; do
+    command -v "$cmd" >/dev/null 2>&1 || die "missing command: $cmd"
+done
+
+root="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+test "$(git branch --show-current)" = "$TARGET_BRANCH" ||
+    die "must use isolated branch $TARGET_BRANCH"
+test "$(git status --porcelain)" = '' ||
+    die 'checkout has uncommitted changes'
+test -f code/SVNINFO && grep -Fxq 'Revision: 90406' code/SVNINFO ||
+    die 'upstream baseline changed; refusing to reapply old patch'
+test -f code/PATCHING.md && test -f code/src/main/gram.y ||
+    die 'nested code/ tree is incomplete'
+
+work="$(mktemp -d "${TMPDIR:-/tmp}/ir-r-devel.XXXXXXXX")"
+trap 'git worktree remove --force "$work/source" >/dev/null 2>&1 || :; rm -rf -- "$work"' EXIT
+
+git fetch --no-tags --depth=1 origin "$IR_BASE_SHA" ||
+    die 'cannot fetch original R snapshot'
+git fetch --no-tags --depth=1 "$R_MIRROR" "$R_DEVEL_SHA" ||
+    die 'cannot fetch pinned upstream R snapshot'
+test "$(git rev-parse "${IR_BASE_SHA}^{commit}")" = "$IR_BASE_SHA" ||
+    die 'original upstream SHA mismatch'
+test "$(git rev-parse "${R_DEVEL_SHA}^{commit}")" = "$R_DEVEL_SHA" ||
+    die 'new upstream SHA mismatch'
+r_revision="$(git show -s --format=%B "$R_DEVEL_SHA" |
+    sed -n 's/.*git-svn-id:.*\/trunk@\([0-9][0-9]*\).*/\1/p' | tail -n 1)"
+test "$r_revision" = "$R_DEVEL_REV" ||
+    die "upstream SVN revision mismatch: $r_revision"
+
+# Reconstruct the full local delta against the original complete R tree.
+# It includes post-baseline grammar, tests, libraries and bootstrap edits.
+git diff --binary --full-index "${IR_BASE_SHA}^{tree}" 'HEAD:code' \
+    > "$work/ir-local.patch"
+test -s "$work/ir-local.patch" || die 'missing IR delta'
+git worktree add --detach "$work/source" "$R_DEVEL_SHA"
+if ! git -C "$work/source" apply --3way --index "$work/ir-local.patch"; then
+    printf '\nAuditing conflicts against original IR semantic changes:\n' >&2
+    python3 "$root/scripts/resolve-r-devel-conflicts.py" \
+        "$root" "$work/source" "$IR_BASE_SHA" "$R_DEVEL_SHA" ||
+        die 'unclassified source conflict; no source published'
+fi
+test -z "$(git -C "$work/source" diff --name-only --diff-filter=U)" ||
+    die 'unmerged files remain'
+
+python3 - "$work/source/PATCHING.md" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+tick = chr(96)
+old = (f"The complete R source tree lives in this {tick}code/{tick} directory. "
+       "The semantic work is based on upstream R Subversion revision "
+       f"**90406**, mirrored by Git commit {tick}3da432e44c{tick}.")
+new = (f"The complete R source tree lives in this {tick}code/{tick} directory. "
+       "The initial IR semantic series was developed against upstream "
+       f"R Subversion revision **90406**, mirrored by Git commit {tick}3da432e44c{tick}. "
+       "The current tree has been refreshed through **90659**; "
+       f"see {tick}IR-UPSTREAM-REFRESH.md{tick} for source identity and procedure.")
+body = p.read_text(encoding="utf-8")
+if body.count(old) != 1:
+    raise SystemExit("unexpected PATCHING.md; refusing historical rewrite")
+p.write_text(body.replace(old, new), encoding="utf-8")
+PY
+
+upstream_date="$(git show -s --format=%ci "$R_DEVEL_SHA")"
+printf 'Revision: %s\nLast Changed Date: %s\n' "$R_DEVEL_REV" "$upstream_date" \
+    > "$work/source/SVNINFO"
+cat > "$work/source/IR-UPSTREAM-REFRESH.md" <<EOF
+# IR R-devel synchronization
+
+Original source: SVN r90406, Git $IR_BASE_SHA.
+New source: SVN r$R_DEVEL_REV, Git $R_DEVEL_SHA.
+Upstream source: $R_MIRROR.
+Upstream commit date: $upstream_date.
+
+The full IR source delta was reapplied using git apply --3way --index to
+the pinned upstream tree. Conflicts stop publication. The nested code/
+source alone was updated; the independent cxxr/ snapshot was untouched.
+Generated gram.c must match gram.y using GNU Bison 3.8.2.
+
+This update is not evidence of a successful build, R regression,
+Unicode semantic execution, S4 compliance, or ARMv7 Termux installation.
+ICK qualification and runtime acceptance remain required before merging.
+EOF
+
+bison_version="$(bison --version | head -n 1)"
+case "$bison_version" in
+    *'3.8.2'*) ;;
+    *) die "expected Bison 3.8.2, received: $bison_version" ;;
+esac
+(
+    cd "$work/source"
+    bison -y -l src/main/gram.y
+    cmp -s y.tab.c src/main/gram.c ||
+        die 'generated gram.c does not match gram.y'
+    rm -f y.tab.c
+)
+test -f "$work/source/tests/ir-unicode-lexer.R" ||
+    die 'lost IR Unicode acceptance fixture'
+test -f "$work/source/tests/reg-encodings.R" ||
+    die 'lost IR encoding regression fixture'
+python3 "$root/scripts/fix-r-devel-replay-whitespace.py" "$work/source" ||
+    die 'legacy formatting normalization did not match audited sites'
+git -C "$work/source" add -A
+# R's Rd sources preserve CRLF. Accept only that existing line-ending
+# convention; still reject added trailing spaces and mixed indentation.
+git -C "$work/source" -c core.whitespace=cr-at-eol diff --cached --check ||
+    die 'source delta whitespace errors'
+
+rsync -a --delete --exclude=.git "$work/source/" "$root/code/"
+git add -A -- code
+test -z "$(git diff --cached --name-only | grep -v '^code/' || :)" ||
+    die 'unexpected changes outside code/'
+grep -Fxq "Revision: $R_DEVEL_REV" code/SVNINFO ||
+    die 'SVN revision receipt missing'
+# The previous whitespace check audits IR's delta relative to R-devel.
+# Do not treat historical upstream whitespace in newly imported R files as
+# an IR regression. Instead prove exact byte-for-byte nested tree identity.
+ir_root_tree="$(git write-tree)"
+nested_source_tree="$(git rev-parse "$ir_root_tree:code")"
+accepted_source_tree="$(git -C "$work/source" write-tree)"
+test "$nested_source_tree" = "$accepted_source_tree" ||
+    die 'copied code/ tree differs from the validated source tree'
+git diff --cached --quiet && die 'expected source update, found no changes'
+
+printf '\nR source prepared: svn r%s / %s\n' "$R_DEVEL_REV" "$R_DEVEL_SHA"
+git diff --cached --stat | tail -n 25
+git config user.name 'github-actions[bot]'
+git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+git commit -m "Refresh IR source to R-devel r$R_DEVEL_REV with three-way replay"
+git push origin "HEAD:refs/heads/$TARGET_BRANCH"
+printf 'PUBLISHED source-only update; compiled acceptance still PENDING.\n'

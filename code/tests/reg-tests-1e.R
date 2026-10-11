@@ -6,12 +6,12 @@ tryCmsg<- function(expr) tryCatch(expr, error = conditionMessage) # typically ==
 assertErrV  <- function(...) tools::assertError  (..., verbose=TRUE)
 assertWarnV <- function(...) tools::assertWarning(..., verbose=TRUE)
 `%||%` <- function (L, R)  if(is.null(L)) R else L
-##' get value of `expr` and keep warning as attribute (if there is one)
+##' get value of `expr` and keep (all) warning(s) as attribute (if there is one)
 getVaW <- function(expr, obj=FALSE) {
     W <- NULL
     withCallingHandlers(val <- expr,
-                        warning = function(w) {
-                            W <<- if(obj) w else conditionMessage(w)
+                        warning = function(w) { # by default obj=FALSE, store all warning msgs:
+                            W <<- if(obj) w else c(W, conditionMessage(w))
                             invokeRestart("muffleWarning") })
     structure(val %||% quote(._NULL_()), warning = W) # NULL cannot have attr.
 }
@@ -107,7 +107,7 @@ d <- matrix(c(1,0,5,2,1,90
               ), nrow=6, byrow = TRUE)
 (r <- tryCid(fisher.test(d)))
 stopifnot(inherits(r, "error"))
-if(englishMsgs)
+if(englishMsgs) # currently not translated
     stopifnot(grepl("hash key .* > INT_MAX", conditionMessage(r)))
 ## gave a seg.fault in R <= 4.2.0
 
@@ -225,8 +225,10 @@ stopifnot(grepl("(>)", M, fixed=TRUE))
 setGeneric("size", function(x) standardGeneric("size"))
 tryCatch(stopifnot(!isGeneric("haha", fdef = size)),
          warning = conditionMessage) -> msg
-msg; if(englishMsgs)
-    stopifnot(grepl("name .size. instead of .haha.", msg))
+msg
+stopifnot(identical(msg, gettextf(domain = "R-methods",
+	  "fdef appears to be a generic function, but with generic name %s instead of %s",
+          sQuote("size"), sQuote("haha"))))
 ## msg was confusing
 
 
@@ -548,8 +550,8 @@ mT <- tryCid( sum(3,4,na.rm=5, 6, NA, 8, na.rm=TRUE) )
 mF <- tryCid( min(3,4,na.rm=5, 6, NA, 8, na.rm=FALSE) )
 stopifnot(inherits(mT, "error"),
           inherits(mF, "error"), all.equal(mT, mF))
-if(englishMsgs)
-    stopifnot(grepl("formal argument \"na.rm\" matched by multiple", conditionMessage(mT)))
+frmAMatchM <- gettext("formal argument \"%s\" matched by multiple actual arguments", domain="R")
+stopifnot(identical(sprintf(frmAMatchM, "na.rm"), conditionMessage(mT)))
 ## these gave numeric (or NA) results without any warning in R <= 4.3.z
 
 
@@ -1235,15 +1237,16 @@ for(nr in 0:2) {
 
 
 ## C level R_nonInt() less tolerant, used more often
-(gd <- getVaW(dbinom(1234560:1234570, 9876543.2, .5)))
-gp  <- getVaW(pbinom(1234560:1234570, 9876543.2, 1/8))
-(gdp <- getVaW(dpois(9876543 + (2:8)/10, 1e7)))
+(gd <- getVaW(dbinom(1234560:1234570, x.2 <- 9876543.2, .5)))
+gp  <- getVaW(pbinom(1234560:1234570, x.2,             1/8))
+x <- 9876543 + (2:8)/10; (gdp <- getVaW(dpois(x, 1e7)))
+NaNtxt   <- gettext("NaNs produced",      domain="R")# "R": R's C-code
+nonint.x <- gettext("non-integer x = %f", domain="R")
+nonint.n <- gettext("non-integer n = %f", domain="R")
 stopifnot(exprs = {
-    !englishMsgs ||
-        identical(gd, structure(rep(NaN, 11), warning = "NaNs produced"))
-    identical(gd, gp)
-    identical(gdp, structure(rep(0,7), # only *last* warning:
-                             warning = "non-integer x = 9876543.800000"))
+    identical(gd, structure(rep(NaN, 11), warning = NaNtxt))
+    identical(gp, structure(rep(NaN, 11), warning = c(rep(sprintf(nonint.n, x.2), 11), NaNtxt)))
+    identical(gdp, structure(rep(0,length(x)), warning = sprintf(nonint.x, x)))
 })
 ## did not warn; just treat 98... as an integer in R < 4.4.0
 
@@ -1253,12 +1256,11 @@ tt <- terms(y ~ a+b)
 t0 <- getVaW(terms(y ~ a+b, abb = 1))
 t1 <- getVaW(terms(y ~ a+b, neg.out = 0))
 t2 <- getVaW(terms(y ~ a+b, abb=NA, neg.out=NA))
+trmsDepr <- gettext("setting '%s' in terms.formula() is deprecated", domain="R-stats")
 stopifnot(exprs = {
-    !englishMsgs ||
-    identical(t0, structure(tt, warning = "setting 'abb' in terms.formula() is deprecated"))
-    !englishMsgs ||
-    identical(t1, structure(tt, warning = "setting 'neg.out' in terms.formula() is deprecated"))
-    identical(t2, t1)
+    identical(t0, structure(tt, warning = sprintf(trmsDepr, "abb")))
+    identical(t1, structure(tt, warning = sprintf(trmsDepr, "neg.out")))
+    identical(t2, structure(tt, warning = sprintf(trmsDepr, c("abb", "neg.out"))))
 })
 ## deprecation was only on help page  for R 4.3.*
 
@@ -1830,8 +1832,8 @@ str(of3 <- optimize(ff, c(-20, 120)));  summary(warnings()); uw3 <- unique(warni
 str(of4 <- optimize(ff, c(-10, 180)));  summary(warnings()); uw4 <- unique(warnings())
 ## +Inf and many NA/NaN
 c(uw2, uw3, uw4)
-stopifnot(all.equal(of3, ok),
-          identical(c(2:1,2L), lengths(list(uw2, uw3, uw4))))
+stopifnot(all.equal(of3, ok))
+identical(c(2:1,2L), print(lengths(list(uw2, uw3, uw4)))) # no longer
 if(englishMsgs)
     stopifnot(identical(c("-Inf replaced by maximally negative value",
                            "Inf replaced by maximum positive value",
@@ -2777,8 +2779,8 @@ local({
     stopifnot(identical(f(x), 1))
     stopifnot(inherits(tryCatch(f(, 1), error = identity), "missingArgError"))
     # This is another error path
-    stopifnot(grepl("the ... list contains fewer than",
-                    tryCatch(f(), error = conditionMessage)))
+    print(fmt <- gettext("the ... list contains fewer than %d element", domain="R"))
+    stopifnot(identical(tryCmsg(f()), sprintf(fmt, 1)))
 })
 
 ## simple test for R_GetDotType
@@ -2886,9 +2888,9 @@ local({
     dotsExist <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsExist(env, inherits))
     fun <- function(...) local(dotsExist(inherits = FALSE))
-    stopifnot(isFALSE(fun()))
-    stopifnot(isFALSE(fun(1)))
-    stopifnot(isFALSE(fun(1, 2, 3)))
+    stopifnot(isFALSE(fun()),
+              isFALSE(fun(1)),
+              isFALSE(fun(1, 2, 3)))
 })
 
 ## C API: R_DotsLength() does not reach into parent environments (PR#18928)
@@ -2896,8 +2898,8 @@ local({
     dotsLength <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsLength(env, inherits))
     fun <- function(...) local(dotsLength(inherits = FALSE))
-    stopifnot(grepl("incorrect context",
-                    tryCatch(fun(1, 2), error = conditionMessage)))
+    stopifnot(gettext("incorrect context: the current call has no '...' to look in", domain="R") ==
+              tryCatch(fun(1, 2), error = conditionMessage))
     ## Works when `...` is directly in the frame
     fn2 <- function(...) dotsLength(inherits = FALSE)
     stopifnot(
@@ -2916,8 +2918,8 @@ local({
     dotsNames <- function(env = parent.frame(), inherits = TRUE)
         .Internal(dotsNames(env, inherits))
     fun <- function(...) local(dotsNames(inherits = FALSE))
-    stopifnot(grepl("incorrect context",
-                    tryCatch(fun(a = 1), error = conditionMessage)))
+    msg <- tryCatch(fun(a = 1), error = conditionMessage) |> print()
+    stopifnot(msg == gettext("incorrect context: the current call has no '...' to look in", domain="R"))
     ## Works when `...` is directly in the frame
     fn2 <- function(...) dotsNames(inherits = FALSE)
     stopifnot(
@@ -2932,12 +2934,12 @@ local({
 })
 
 ## C API: R_DotsElt() does not reach into parent environments (PR#18928)
+(duse_inc_ctxt <- gettext("..%d used in an incorrect context, no ... to look in", domain="R"))
 local({
     dotsElt <- function(i, env = parent.frame(), inherits = TRUE)
         .Internal(dotsElt(i, env, inherits))
     fun <- function(...) local(dotsElt(1L, inherits = FALSE))
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(fun(42), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(fun(42)), sprintf(duse_inc_ctxt, 1)))
     ## Works when `...` is directly in the frame
     fn2 <- function(...) dotsElt(1L, inherits = FALSE)
     stopifnot(
@@ -2958,8 +2960,7 @@ local({
     getDotType <- function(i, env = parent.frame(), inherits = TRUE)
         .Internal(getDotType(i, env, inherits))
     fun <- function(...) local(getDotType(1L, inherits = FALSE))
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(fun(1), error = conditionMessage)))
+    identical(tryCmsg(fun(1)), sprintf(duse_inc_ctxt, 1))
     ## (positive tests above in "simple test for R_GetDotType")
 })
 
@@ -2973,11 +2974,9 @@ local({
         .Internal(dotDelayedEnvironment(i, env, inherits))
     x <- 1
     fun <- function(...) local(dotDelayedExpr(1L, inherits = FALSE))
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(fun(x), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(fun(x)), sprintf(duse_inc_ctxt, 1)))
     fn2 <- function(...) local(dotDelayedEnv(1L, inherits = FALSE))
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(fn2(x), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(fn2(x)), sprintf(duse_inc_ctxt, 1)))
 })
 
 ## C API: R_DotForcedExpression() does not reach parents (PR#18928)
@@ -2990,8 +2989,7 @@ local({
         force(..1)
         local(dotForcedExpr(1L, inherits = FALSE))
     }
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(fun(x), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(fun(x)), sprintf(duse_inc_ctxt, 1)))
 })
 
 ## R API: ...length() retains inherited scoping (PR#18928)
@@ -3078,40 +3076,33 @@ local({
 })
 
 ## R API errors when no `...` in scope at all (PR#18928)
+(inc_ctxt_nod <- gettext(
+     "incorrect context: the current call has no '...' to look in", domain = "R"))
 local({
     f <- function() ...length()
-    stopifnot(grepl("incorrect context",
-                    tryCatch(f(), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(f()), inc_ctxt_nod))
     g <- function() ...elt(1)
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(g(), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(g()), sprintf(duse_inc_ctxt, 1)))
     h <- function() ...names()
-    stopifnot(grepl("incorrect context",
-                    tryCatch(h(), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(h()), inc_ctxt_nod))
     ## Also through local()
     f <- function() local(...length())
-    stopifnot(grepl("incorrect context",
-                    tryCatch(f(), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(f()), inc_ctxt_nod))
     g <- function() local(...elt(1))
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(g(), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(g()), sprintf(duse_inc_ctxt, 1)))
     h <- function() local(...names())
-    stopifnot(grepl("incorrect context",
-                    tryCatch(h(), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(h()), inc_ctxt_nod))
 })
 
 ## R API: `...` overwritten with non-DOTSXP skips frame (PR#18928)
 local({
     ## Overwritten in current frame: R_findDotsEnv skips it, errors
     f <- function(...) { "..." <- 1; ...elt(1) }
-    stopifnot(grepl("no ... to look in",
-                    tryCatch(f(1), error = conditionMessage)))
+    stopifnot(identical(tryCmsg( f(1) ), sprintf(duse_inc_ctxt, 1)))
     f <- function(...) { "..." <- 1:2; ...length() }
-    stopifnot(grepl("incorrect context",
-                    tryCatch(f(1), error = conditionMessage)))
+    stopifnot(identical(tryCmsg(f(1)), inc_ctxt_nod))
     f <- function(...) { "..." <- NULL; ...names() }
-    stopifnot(grepl("incorrect context",
-                    tryCatch(f(a = 1), error = conditionMessage)))
+    stopifnot(identical(tryCmsg( f(a = 1) ), inc_ctxt_nod))
     ## Overwritten in local(): R_findDotsEnv skips local, finds parent
     f <- function(...) local({ "..." <- 1; ...elt(1) })
     stopifnot(f(42) == 42)
@@ -3577,6 +3568,33 @@ local({
 ## write.dcf() relied on the Encoding field (in R <= 4.6.0)
 
 
+## read.dcf() matches a repeated field name containing an invalid byte
+local({
+    tf <- tempfile()
+    rec <- c(charToRaw("Package: p\nX"), as.raw(0xff), charToRaw("Y: v\n\n"))
+    con <- file(tf, "wb")
+    writeBin(rep(rec, 3), con)
+    close(con)
+    dC <- read.dcf(tf)
+    dR <- read.dcf(tf, all = TRUE)
+    stopifnot(identical(dim(dC), c(3L, 2L)),
+              identical(colnames(dC), c("Package", "X<ff>Y")),
+              identical(colnames(dC), names(dR)),
+              identical(unname(dC[, "X<ff>Y"]), dR[["X<ff>Y"]]))
+    ## Malformed lines with invalid bytes: the repaired line is shorter
+    ## than the 20 bytes the error message keeps.
+    for (b in list(as.raw(0xff), c(charToRaw("  "), as.raw(0xff)))) {
+        con <- file(tf, "wb")
+        writeBin(b, con)
+        close(con)
+        msg <- tryCatch(read.dcf(tf), error = conditionMessage)
+        stopifnot(grepl("<ff>", msg, fixed = TRUE))
+    }
+    unlink(tf)
+})
+## previously a duplicate "X<ff>Y" column per record (in R-devel since r90200)
+
+
 ## seq.int(along.with = *) for non-vector objects (PR#19100)
 stopifnot(identical(seq.int(along.with = NULL), integer(0)),
           identical(seq.int(along.with = mean), 1L))
@@ -3604,8 +3622,9 @@ chkFM <- function(mA, mL) {
         identical(coef(mA), coef(mL))
         !is.null(wA <- attr(smA, "warning"))
         !is.null(wL <- attr(smL, "warning"))
+        identical(wL[1], gettext("essentially perfect fit: summary may be unreliable",
+                                  domain="R-base"))
         !englishMsgs || grepl("essentially perfect fit", wA)
-        !englishMsgs || grepl("essentially perfect fit", wL)
     })
 }
 ## simple case:
@@ -3655,18 +3674,20 @@ stopifnot(identical(f(FALSE), 100),
 ## PR#19109 -- `dim<-` dimension vector product can overflow
 x <- integer()
 er <- tryCid(dim(x) <- rep(2^16, 4))
-stopifnot(inherits(er, "error"))
-if(englishMsgs)
-    stopifnot(grepl("too many", conditionMessage(er)))
+stopifnot(inherits(er, "error"),
+          identical(gettext("too many elements specified", domain="R"),
+                    conditionMessage(er)))
 ## gave no error but an x of length zero; x[] <- .. would seg.fault
 t30 <- 2^30
-for(nd in c(2:4, 33:37)) { # 
+for(nd in c(2:4, 33:37)) {
     d. <- c(rep(t30, nd), 0)
     x <- integer();   dim(x) <- d.
     y <- array(integer(), dim = d.)
     stopifnot(identical(x, y), is.integer(d <- dim(x)), all.equal(d., d))
 }
 ## above creation of x & y failed for a couple of hours in R-devel
+## r90452 overflowed the computation of the product of dimensions.
+## giving a negative answer on some platforms (x86_64, not macOS).
 
 
 ## PR#19116 -- <matrix>[[i, j]]: stochastic error with negative i
@@ -3677,6 +3698,272 @@ RR <- replicate(1000, {
 })
 stopifnot(RR == "2", length(RR) == 1000L)
 ## RR was '2' "randomly" in R <= 4.6.1
+
+
+## PR#19049
+save("save", file=(tf <- tempfile("saveRdata")))
+sys.load.image(tf, FALSE); rm(tf, save)
+## had called .Internal(RNGkind(..)) with wrong number of args
+
+
+## aperm() speedup and t() compatibility, preserving dimnames -- PR#19133
+m <- matrix(1:10, 2, 5, dimnames = list(X = paste0("x", 1:2), Y = paste0("y", 1:5)))
+a <- array(m, dim = c(2, 5, 1),
+           dimnames = list(X = paste0("x", 1:2), Y = paste0("y", 1:5), Z = "z1"))
+stopifnot(
+    identical(aperm(m, c(2, 1)), t(m)),
+    identical(aperm(m), t(m)),
+    identical(drop(aperm(a, c(2, 1, 3))), aperm(m, c(2, 1))),
+    identical(drop(aperm(a, c(2, 1, 3), resize = FALSE)), aperm(m, c(2, 1), resize = FALSE)),
+    identical(drop(aperm(a, c("Y", "X", "Z"))), aperm(m, c("Y", "X"))),
+    identical(drop(aperm(a, c(1, 2, 3), resize = FALSE)), aperm(m, c(1, 2), resize = FALSE))
+)
+## had failed for a few days
+
+
+## ksmooth(.., x.points = <invalid>) -- PR#19153
+x <- 1:11; y <- (x - 5)^2
+L00 <- list(x = numeric(), y = numeric())
+stopifnot(identical(L00, ksmooth(x,y, x.points=NULL)),
+          identical(L00, ksmooth(x,y, x.points=rep(NA,999))))
+## did seg.fault, trying to access x.points[1] from C
+
+
+## malformed ALTREP serialized class metadata
+altrep <- rawToChar(serialize(1:3, NULL, ascii = TRUE))
+marker <- "\n2\n13\n1\n13\n254\n"
+pos <- gregexpr(marker, altrep, fixed = TRUE)[[1L]]
+stopifnot(length(pos) == 1L, pos > 0L)
+replacements <- c("\n2\n13\n1\n8357\n254\n",
+                  "\n2\n14\n1\n13\n254\n",
+                  "\n2\n13\n0\n254\n")
+errs <- lapply(replacements, function(replacement) {
+    serialized <- charToRaw(sub(marker, replacement, altrep, fixed = TRUE))
+    tryCid(unserialize(serialized))
+})
+stopifnot(vapply(errs, inherits, NA, what = "error"),
+          vapply(errs, function(e)
+              grepl("invalid ALTREP serialized class", conditionMessage(e), fixed = TRUE),
+              NA))
+## an invalid type value indexed beyond Type2Table and seg.faulted
+
+
+## lm(data = .)
+(lmd <- lm(data = swiss))
+stopifnot(all.equal(coef(lmd), tolerance = 1e-4,
+                    c(`(Intercept)` = 66.92, Agriculture = -0.1721, Examination = -0.258,
+                      Education = -0.8709, Catholic = 0.1041, Infant.Mortality = 1.077)))
+## failed for 2 days
+
+
+## logical array subscript: warning contains offending dimension -- PR#19155
+a <- array(0, c(5L, 5L, 5L))
+i <- c(FALSE, TRUE, TRUE)
+erfmt <- gettext("length of dimension %d is not a multiple of logical subscript length", domain = "R")
+aWa <- getVaW(a[i, , i, drop = FALSE])
+aWset <- getVaW(a[i, ,] <- 1)
+stopifnot(exprs = {
+    identical(dim(aWa), c(3L, 5L, 3L))
+    aWa == 0
+    identical(attr(aWa,   "warning"), sprintf(erfmt, c(1, 3)))
+    identical(attr(aWset, "warning"), sprintf(erfmt, 1))
+})
+## fractional recycling of logical in  a[<logi>]  did not warn in R <= 4.6.*
+
+
+## str(<pseudo-function>) --  PR#19173
+lab <- list(a=1, b=2)
+psf <- structure(lab, class = "function")
+stopifnot(exprs = {
+    is.list(psf)
+    all.equal(psf, as.list(psf))
+    identical(lab, as.list(structure(c(a=1, b=2), class = "function")))
+    is.null(writeLines(s1 <- capture.output( str(psf) )))
+    identical(s1[-4],        capture.output( str(lab) ))
+})
+## as.list.function() is safer now; str.default() gave error in  R <= 4.6.*
+
+
+## besselI()/besselK() with too large order -- now NaN with warning
+if(.Machine$sizeof.pointer >= 8) { # 32-bit cannot allocate 7.5 Gb (PR#19175#c3)
+    assertWarnV(bI <- besselI(1, 1e10))     # Warning ... too large for bessel_[ik]() algorithm
+    assertWarnV(bK <- besselK(1, c(2^(60:70), Inf)))
+    for(sc in c(FALSE, TRUE)) {
+        assertWarnV(bK <- besselK(0, c(-Inf, -1e11), expon.scaled = sc))
+        stopifnot(is.nan(bK))
+    }
+}
+## segfaulted for |order| >= 2^31 in R <= 4.6.1
+
+
+## New  chol2inv(.., diag.only = TRUE) -- wish of PR#19177
+cma <- chol(sym <- tcrossprod(cbind(1, 1:4, 1:2, c(1,6:8))))
+8 * (chI <- chol2inv(cma)) # "integer"
+(dchma <- chol2inv(cma, diag.only = TRUE))
+          all.equal(D4 <- diag(4), sym %*% chI -> sych,  tolerance = 0) # 6.68 e-14
+	  all.equal(dch <- c(9, 7, 17, 15)/8, diag(chI), tolerance = 0) # 6.25 e-15
+	  all.equal(dch,                          dchma, tolerance = 0) #    "
+stopifnot(all.equal(D4,   sych,     tolerance = 1e-12),
+          all.equal(dch, diag(chI), tolerance = 1e-13),
+          all.equal(dch, dchma,     tolerance = 1e-13))
+## new in R 4.7.0
+
+
+## anova.glm(), anova.glmlist(): 'test' argument documented as partially matched
+counts <- c(18,17,15,20,10,20,25,13,12); outcome <- gl(3,1,9); treatment <- gl(3,3)
+fitP <- glm(counts ~ outcome + treatment, family = poisson())
+fit0 <- update(fitP, . ~ outcome)
+                 (A1 <- anova(      fitP, test = "Rao"))
+                  A2 <- anova(fit0, fitP, test = "Rao")
+stopifnot(identical(A1, anova(fitP,       test = "Ra")),
+          identical(A2, anova(fit0, fitP, test = "Ra")))
+## "Ra" gave error  "undefined columns selected"  in  R <= 4.6.1
+
+
+## out-of-range graphical line parameters
+local({
+    pdf(NULL)
+    on.exit(dev.off())
+    plot.new()
+    plot.window(0:1, 0:1)
+
+    max.int <- as.double(.Machine$integer.max)
+    lines(0:1, 0:1, lty = max.int)
+
+    assertErrV(lines(0:1, 0:1, lty = max.int + 1))
+    assertErrV(lines(0:1, 0:1, lend = max.int + 1))
+    assertErrV(lines(0:1, 0:1, ljoin = max.int + 1))
+})
+## produced undefined behvaior
+
+
+## parsing '<lhs> |> <var> => <expr>' left the reduced call unprotected on the
+## parser stack, so a GC before the enclosing reduction could free it
+## (found by fuzzing; '=>' is still opt-in, and stays enabled once seen)
+Sys.setenv("_R_USE_PIPEBIND_" = "true")
+gctorture(TRUE)
+e <- parse(text = "x |> b => f(b) + { y <- 1; y <- 1; y <- 1; y <- 1; y <- 1 }",
+           keep.source = FALSE)
+gctorture(FALSE)
+Sys.unsetenv("_R_USE_PIPEBIND_")
+ex <- quote((function(b) f(b))(x)); ex[[1]] <- ex[[1]][[2]] # no `(` call
+stopifnot(identical(e[[1]][[2]], ex))
+## gave garbage (or a crash) for the LHS of '+' in R <= 4.6.x
+
+
+## NULL and negative 'deriv' in predict.smooth.spline() - PR#19190
+ss <- smooth.spline(1:4)
+for(obj in list(ss, ss$fit))
+    for(d in list(NULL, -99L))
+        assertErrV(predict(obj, x = 1, deriv = d))
+## These could cause a segfault in R <= 4.6.1
+
+
+## format(<utf8>, width = large) -- PR#19188
+assertWarnV(# j=0 --> warning: NAs introduced by coercion to integer range
+  lapply(0:3, \(j)
+	 tryCid(format("\u00e9", width = 2^31 - j))) -> errs)
+stopifnot(unlist(lapply(errs, inherits, "error")))
+vapply(errs, `[[`, "..", "message")
+## j=1,2 would segfault in R <= 4.6.1
+
+
+## sprintf() with a width or precision near INT_MAX, PR#19192
+imax <- .Machine$integer.max
+assertErrV(sprintf("%2147483647s", "a"))
+assertErrV(sprintf("%*s", imax, "a"))
+assertErrV(sprintf("%-2147483647d", 1L))
+assertErrV(sprintf("%99999999999s", "a"))
+assertErrV(sprintf("%.2147483647f", 1))
+stopifnot(exprs = {
+    identical(sprintf("%.2147483647s", "a"), "a")
+    identical(sprintf("%.*s", imax, "a"), "a")
+    identical(sprintf("%.99999999999s", "a"), "a")
+    identical(sprintf("%.2147483647g", 0.1), sprintf("%.9000g", 0.1))
+})
+if(englishMsgs)
+    stopifnot(grepl("length 2147483647 is greater than maximal",
+                    tryCmsg(sprintf("%2147483647s", "a"))))
+## overflowed the C stack (glibc 2.31 with printf hooks registered, as
+## libquadmath does) or silently gave "" in R <= 4.6.x
+
+
+## memDecompress(type = "gzip") on a truncated gzip or zlib stream looped
+## forever, allocating a fresh output buffer on every pass, when R was built
+## without libdeflate (found by fuzzing)
+x <- as.raw(rep(0L, 1000))
+z <- memCompress(x, "gzip")                     # a zlib stream
+assertErrV(memDecompress(z[-length(z)], "gzip"))
+tf <- tempfile(fileext = ".gz")
+con <- gzfile(tf, "wb"); writeBin(x, con); close(con)
+g <- readBin(tf, "raw", file.size(tf)); unlink(tf) # a gzip member
+assertErrV(memDecompress(g[seq_len(length(g) - 8L)], "gzip")) # no trailer
+assertErrV(memDecompress(as.raw(c(0x78, 0x9c, 0x0a, 0x20)), "gzip"))
+## hung or exhausted memory in R <= 4.6.x
+
+
+## the "embedded nul in string" error built its message from an unprotected
+## CHARSXP, and translating that CHARSXP to the native encoding could trigger
+## a GC that freed it first (found by fuzzing)
+s <- strrep(iconv("\u00e9", "UTF-8", "latin1"), 30000) # latin1, large vector
+r <- serialize(s, NULL)
+idx <- which(r == as.raw(0xe9))
+for (frac in c(1/2, 1/4)) { # nul position where the translation is as long
+    rr <- r                 # as the CHARSXP, in a UTF-8 resp. C locale
+    rr[idx[length(idx) * frac]] <- as.raw(0)
+    gctorture(TRUE)
+    res <- tryCatch(unserialize(rr), error = conditionMessage)
+    gctorture(FALSE)
+    stopifnot(startsWith(res, "embedded nul in string: '"))
+}
+## gave "'Rf_getCharCE' must be called on a CHARSXP" (or a crash) in R <= 4.6.x
+
+
+## influence.measures() must agree with the direct access functions for a
+## glm with fixed dispersion (binomial, poisson)
+counts <- c(18,17,15,20,10,20,25,13,12); outcome <- gl(3,1,9); treatment <- gl(3,3)
+fitP <- glm(counts ~ outcome + treatment, family = poisson())
+imP <- influence.measures(fitP)$infmat
+stopifnot(all.equal(imP[, "dffit"], dffits(fitP)),
+          all.equal(imP[, "cov.r"], covratio(fitP)),
+          all.equal(unname(imP[, 1:5]), unname(dfbetas(fitP))))
+## dffit, cov.r and dfb.* used the leave-one-out sigma in R 4.6.0 and 4.6.1
+
+
+## wilcox.test(*, exact=TRUE)  when p ~= 1 -- PR#19144
+x <- c(-71, -54, -41, -33, -30:-29, -27, -1:0, 2:26, 28, 31:32, 34:40, 42:53, 55:70, 72:99)
+(pvW <- vapply(c("two.sided", "greater", "less"),
+               function(alt) wilcox.test(x, exact = TRUE, alternative = alt)$p.value, .1))
+pvX <- c( # exact values:
+    two.sided = 409667043355 / 2^97
+  , greater   = 409667043355 / 2^98
+  , less  = 1 - 194595959493 / 2^97)
+all.equal(pvX, pvW, tolerance = 0) # 3.87e-15
+stopifnot(print(abs(pvW/pvX - 1)) <= c(2e-14, 2e-14, 1e-15),
+          all.equal(2, pvW[["two.sided"]]/pvW[["greater"]]))
+## not ok in  R <= 4.6.1
+
+
+
+## read.dcf() escapes 4-byte sequences above U+10FFFF, which iconv()
+## passes through but validUTF8() rejects, like other invalid bytes
+local({
+    bad <- as.raw(c(0xf6, 0xb6, 0xb6, 0xb6))
+    x <- rawToChar(c(charToRaw("A: v\n "), bad, charToRaw("\n lue\n")))
+    con <- textConnection(x)
+    d <- read.dcf(con)
+    close(con)
+    stopifnot(identical(d[[1L, "A"]], "v\n<f6><b6><b6><b6>\nlue"), validUTF8(d))
+})
+## gave "????" in R-devel since r90200, and re-encoded the whole field
+## value for each further continuation line
+
+## iconv(sub = "Unicode") and sub = "c99" never returned on invalid UTF-8 input
+x <- rawToChar(as.raw(c(0x61, 0xc3, 0x28, 0xe2, 0x82))) # "a", a lone lead byte, a truncated sequence
+stopifnot(identical(iconv(x, "UTF-8", "ASCII", sub = "Unicode"), "a<c3>(<e2><82>"),
+          identical(iconv(x, "UTF-8", "ASCII", sub = "c99"),     "a<c3>(<e2><82>"),
+          identical(iconv("caf\u00e9", "UTF-8", "ASCII", sub = "Unicode"), "caf<U+00E9>"))
+## looped forever in R <= 4.6.1
 
 
 

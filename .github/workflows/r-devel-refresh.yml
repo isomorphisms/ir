@@ -1,0 +1,32 @@
+name: R-devel source refresh (source-only)
+on:
+  push:
+    branches:
+      - sync-r-devel-r90659-20261010
+    paths:
+      - .github/workflows/r-devel-refresh.yml
+      - scripts/sync-r-devel
+      - scripts/resolve-r-devel-conflicts.py
+
+permissions:
+  contents: write
+
+jobs:
+  source-sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      LC_ALL: C.UTF-8
+    steps:
+      - name: Checkout exact IR branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: sync-r-devel-r90659-20261010
+          persist-credentials: true
+          fetch-depth: 1
+      - name: Install source-only prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bison rsync
+      - name: Three-way source rebase, grammar check and provenance
+        run: bash scripts/sync-r-devel

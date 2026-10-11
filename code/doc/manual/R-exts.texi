@@ -5503,7 +5503,7 @@ interface.
 
 @c https://endoflife.date/java
 Java 8 is still in widespread use (and may remain so because of licence
-changes and support on older OSes..  On the other hand, newer platforms
+changes and support on older OSes).  On the other hand, newer platforms
 may only have support for fairly recent versions of Java: for @cputype{arm64}
 macOS the first officially supported version was 17.
 
@@ -7677,8 +7677,8 @@ include a comment in the @code{\donttest} section explaining why it is
 needed.
 
 @findex \dontdiff
-Output from code marked with @code{\dontdiff} (requires @R{} >= 4.4.0)
-or between comment lines
+Output from code marked with @code{\dontdiff} at the beginning of a line
+(requires @R{} >= 4.4.0) or between comment lines
 @example
 ## IGNORE_RDIFF_BEGIN
 ## IGNORE_RDIFF_END
@@ -15492,7 +15492,7 @@ Memory obtained by these macros should be aligned in the same way as
 @c @apifun Free
 @c The R_ forms were introduced in 2016-09, hence for R 3.4.0
 Historically the macros @code{Calloc}, @code{Free} and @code{Realloc}
-were used but have been removed in \R 4.5.0.
+were used but have been removed in @R{} 4.5.0.
 
 @code{R_Calloc}, @code{R_Realloc}, and @code{R_Free} are currently
 implemented as macros expanding to calls to @code{R_chk_calloc},
@@ -17044,7 +17044,7 @@ this is defined.
 @end deftypefun
 
 @eapifun Rf_acopy_string
-@deftypefun {const char *} Rf_acopy_string (const char *@var{in})
+@deftypefun {char *} Rf_acopy_string (const char *@var{in})
 Return a copy of a string using memory from @code{R_alloc}.
 @end deftypefun
 

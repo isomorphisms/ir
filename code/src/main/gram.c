@@ -3592,7 +3592,12 @@ static SEXP xxpipe(SEXP lhs, SEXP rhs, YYLTYPE *lloc_rhs)
 	    SEXP alist = list1(R_MissingArg);
 	    SET_TAG(alist, var);
 	    SEXP fun = lang4(R_FunctionSymbol, alist, expr, R_NilValue);
-	    return lang2(fun, lhs);
+	    /* the result stays on the parser stack until the next
+	       reduction, so it must be preserved like any other value */
+	    PRESERVE_SV(ans = lang2(fun, lhs));
+	    RELEASE_SV(lhs);
+	    RELEASE_SV(rhs);
+	    return ans;
 	}
 
 	/* check for placeholder in the RHS function */
@@ -4043,6 +4048,11 @@ static bool checkForPipeBind(SEXP arg)
 	    if (checkForPipeBind(CAR(cur)))
 		return true;
     return false;
+}
+
+static bool isCommentLike(int token)
+{
+	return token == COMMENT || token == LINE_DIRECTIVE;
 }
 
 static SEXP R_Parse1(ParseStatus *status)
@@ -5719,7 +5729,6 @@ int isValidName(const char *name)
     return 1;
 }
 
-
 static int SymbolValue(int c)
 {
     int kw;
@@ -6651,7 +6660,7 @@ static void finalizeData(void){
       */
 
     for(i = nloc-1; i >= 0; i--) {
-	if (_TOKEN(i) == COMMENT) {
+	if (isCommentLike(_TOKEN(i))) {
 	    int orphan = 1;
 	    int istartl = _FIRST_PARSED(i);
 	    int istartc = _FIRST_COLUMN(i);
@@ -6690,7 +6699,7 @@ static void finalizeData(void){
     int orphan ;
 
     for( i=0; i<nloc; i++){
-	if( _TOKEN(i) == COMMENT ){
+	if( isCommentLike(_TOKEN(i)) ){
 	    comment_line = _FIRST_PARSED( i ) ;
 	    comment_first_col = _FIRST_COLUMN( i ) ;
 
@@ -6726,10 +6735,9 @@ static void finalizeData(void){
 
     for( i=0; i<nloc; i++){
 	int token = _TOKEN(i); 
-	if( token == COMMENT && _PARENT(i) == 0 ){
+	if( isCommentLike(token) && _PARENT(i) == 0 ){
 	    for( j=i; j<nloc; j++){
-		int token_j = _TOKEN(j); 
-		if( token_j == COMMENT ) continue ;
+		if( isCommentLike(_TOKEN(j)) ) continue ;
 		if( _PARENT(j) != 0 ) continue ;
 		_PARENT(i) = - _ID(j) ;
 		break ;
