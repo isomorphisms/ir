@@ -111,8 +111,12 @@ test -f "$work/source/tests/ir-unicode-lexer.R" ||
     die 'lost IR Unicode acceptance fixture'
 test -f "$work/source/tests/reg-encodings.R" ||
     die 'lost IR encoding regression fixture'
+python3 "$root/scripts/fix-r-devel-replay-whitespace.py" "$work/source" ||
+    die 'legacy formatting normalization did not match audited sites'
 git -C "$work/source" add -A
-git -C "$work/source" diff --cached --check ||
+# R's Rd sources preserve CRLF. Accept only that existing line-ending
+# convention; still reject added trailing spaces and mixed indentation.
+git -C "$work/source" -c core.whitespace=cr-at-eol diff --cached --check ||
     die 'source delta whitespace errors'
 
 rsync -a --delete --exclude=.git "$work/source/" "$root/code/"
@@ -121,7 +125,8 @@ test -z "$(git diff --cached --name-only | grep -v '^code/' || :)" ||
     die 'unexpected changes outside code/'
 grep -Fxq "Revision: $R_DEVEL_REV" code/SVNINFO ||
     die 'SVN revision receipt missing'
-git diff --cached --check || die 'resulting source diff whitespace errors'
+git -c core.whitespace=cr-at-eol diff --cached --check ||
+    die 'resulting source diff whitespace errors'
 git diff --cached --quiet && die 'expected source update, found no changes'
 
 printf '\nR source prepared: svn r%s / %s\n' "$R_DEVEL_REV" "$R_DEVEL_SHA"
