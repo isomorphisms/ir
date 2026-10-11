@@ -59,11 +59,11 @@ for filename in conflicts:
     if re.fullmatch(r"src/library/(base|stats)/po/[^/]+\.po", filename):
         # The original IR patch changed only the reserved identifier "fn"
         # in gettext strings. Keep upstream catalogue regeneration/metadata.
-        if not a.count(b"fn") or ir != a.replace(b"fn", b"fun"):
+        if not identifier_fn.findall(a) or ir != rename_fn(a):
             raise SystemExit(f"blocked: nonmechanical IR .po delta in {filename}")
-        if new_r.count(b"fn") != a.count(b"fn"):
+        if len(identifier_fn.findall(new_r)) != len(identifier_fn.findall(a)):
             raise SystemExit(f"blocked: unexpected translated fn count in {filename}")
-        merged = new_r.replace(b"fn", b"fun")
+        merged = rename_fn(new_r)
         rule = "translation message fn->fun (counts and exact old diff verified)"
     elif filename == "po/Makefile.in":
         old = b"R_DEFAULT_PACKAGES=NULL LC_ALL=C $(R_EXE)"
