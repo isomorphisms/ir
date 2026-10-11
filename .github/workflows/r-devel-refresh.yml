@@ -5,6 +5,8 @@ on:
       - sync-r-devel-r90659-20261010
     paths:
       - .github/workflows/r-devel-refresh.yml
+      - scripts/sync-r-devel
+      - scripts/resolve-r-devel-conflicts.py
 
 permissions:
   contents: write
