@@ -4,7 +4,7 @@ This page is for maintainers, porters, and people reviewing the parser change. E
 
 ## Source and patch boundary
 
-The complete R source tree lives in this `code/` directory. The semantic work is based on upstream R Subversion revision **90406**, mirrored by Git commit `3da432e44c`.
+The complete R source tree lives in this `code/` directory. The initial IR semantic series was developed against upstream R Subversion revision **90406**, mirrored by Git commit `3da432e44c`. The current tree has been refreshed through **90659**; see `IR-UPSTREAM-REFRESH.md` for source identity and procedure.
 
 The reviewable semantic series is:
 

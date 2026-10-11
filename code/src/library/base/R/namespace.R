@@ -1,7 +1,7 @@
 #  File src/library/base/R/namespace.R
 #  Part of the R package, https://www.R-project.org
 #
-#  Copyright (C) 1995-2025 The R Core Team
+#  Copyright (C) 1995-2026 The R Core Team
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -470,9 +470,7 @@ loadNamespace <- function (package, lib.loc = NULL,
                     if(encoding == "latin1") encoding <- "cp1252"
                     file.show(lfiles[1L], encoding = encoding)
                 } else {
-                    message(gettextf(paste("package %s has a license that you need to accept:",
-                                           "according to the DESCRIPTION file it is",
-                                           "%s", sep="\n"),
+                    message(gettextf("package %s has a license that you need to accept:\n  according to the DESCRIPTION file it is\n  %s",
                                      sQuote(pkg),
                                      pkgInfo$DESCRIPTION["License"]), domain = NA)
                 }
@@ -1340,17 +1338,19 @@ parseNamespaceFile <- function(package, package.lib, mustExist = TRUE)
     parseDirective <- function(e) {
         ## trying to get more helpful error message:
 	asChar <- function(cc) {
-            ## <FIXME>
-            ## <https://bugs.r-project.org/show_bug.cgi?id=19132>
-            ## Simply 
-	    ##   r <- vapply(cc, as.character, "")
-            ## does not work, as
-            ## R> as.character(parse(text = "NULL")[[1]])
-            ## character(0)
-            ## R> as.character(parse(text = "foo::bar")[[1]])
-            ## [1] "::"  "foo" "bar"
-            r <- as.character(cc)
-            ## </FIXME>
+            r <- if(length(cc) <= 1L)
+                     as.character(cc)
+                 else vapply(cc,
+                             function(e) {
+                                 if(is.character(e))
+                                     e
+                                 else if(is.name(e))
+                                     as.character(e)
+                                 else
+                                     deparse1(e)
+                             },
+                             "",
+                             USE.NAMES = FALSE)
 	    if(any(r == ""))
 		stop(gettextf("empty name in directive '%s' in 'NAMESPACE' file",
 			      as.character(e[[1L]])),

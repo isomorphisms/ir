@@ -118,10 +118,10 @@ findLineNum <- function(srcfile, line, nameonly=TRUE, envir=parent.frame(), last
     	    count <- count + 1L
     	    result[[count]] <- c(list(name=functionName, env=envirs[[i]]), loc)
     	}
-    	gen <- tryCatch(methods::isGeneric(functionName, envirs[[i]], fdef=fun),
+	gen <- tryCatch(methods::isGeneric(functionName, envirs[[i]], fdef=fun),
                         error = identity)
     	if (isTRUE(gen)) {
-    	    e1 <- environment(fun)$.AllMTable
+	    e1 <- environment(fun)$.AllMTable
             for (sig in names(e1)) {
                 fun <- e1[[sig]]
                 if (typeof(fun) != "closure")
