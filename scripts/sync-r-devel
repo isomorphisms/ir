@@ -47,11 +47,13 @@ git diff --binary --full-index "${IR_BASE_SHA}^{tree}" 'HEAD:code' \
 test -s "$work/ir-local.patch" || die 'missing IR delta'
 git worktree add --detach "$work/source" "$R_DEVEL_SHA"
 if ! git -C "$work/source" apply --3way --index "$work/ir-local.patch"; then
-    printf '\nUnresolved three-way conflicts (NOT PUBLISHED):\n' >&2
-    git -C "$work/source" diff --name-only --diff-filter=U >&2 || :
-    git -C "$work/source" status --short >&2 || :
-    die 'source semantic conflict; manual review required'
+    printf '\nAuditing conflicts against original IR semantic changes:\n' >&2
+    python3 "$root/scripts/resolve-r-devel-conflicts.py" \
+        "$root" "$work/source" "$IR_BASE_SHA" "$R_DEVEL_SHA" ||
+        die 'unclassified source conflict; no source published'
 fi
+test -z "$(git -C "$work/source" diff --name-only --diff-filter=U)" ||
+    die 'unmerged files remain'
 
 python3 - "$work/source/PATCHING.md" <<'PY'
 from pathlib import Path
